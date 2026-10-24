@@ -4,7 +4,6 @@ Aplikasi web untuk mempertemukan pendonor darah dan keluarga pasien di kawasan D
 Pengguna memilih golongan darah pasien, SADA menampilkan pendonor yang **kompatibel** (bukan hanya golongan sama)
 dan menandai siapa yang sudah melewati jeda 75 hari sejak donor terakhir.
 
-- **Back-end:** Express.js + SQLite (better-sqlite3), API data sendiri
 - **Front-end:** ReactJS (Vite, React Router)
 
 ## Menjalankan di komputer lokal
@@ -12,27 +11,20 @@ dan menandai siapa yang sudah melewati jeda 75 hari sejak donor terakhir.
 Prasyarat: Node.js 20 atau lebih baru.
 
 ```bash
-git clone <URL-REPOSITORY-ANDA>
-cd sada
+git clone <URL-REPOSITORY-FRONTEND-ANDA>
+cd ifs24053-pabwe2026-proyek1
 
-# Terminal 1 - back-end (http://localhost:3001)
-cd backend
-npm install
-npm start
-
-# Terminal 2 - front-end (http://localhost:5173)
+# Jalankan front-end (http://localhost:5173)
 cd frontend
 npm install
 cp .env.example .env
 npm run dev
 ```
 
-Database `sada.db` dibuat dan diisi data contoh otomatis saat server pertama dijalankan.
-
-## Pengujian
-
+Atau dari root proyek:
 ```bash
-cd backend && npm test
+npm run dev
+npm run build
 ```
 
 ## Halaman

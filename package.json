@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "npm --prefix backend test",
-    "test:coverage": "npm --prefix backend run test:coverage",
-    "build": "npm --prefix frontend run build"
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
   },
   "devDependencies": {
     "@types/bun": "latest"
