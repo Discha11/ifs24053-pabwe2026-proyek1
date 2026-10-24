@@ -126,15 +126,17 @@ export default function ActiveRequests({ requests = [], error = false }) {
             <div className="filter-toolbar">
               <div className="filter-row">
                 <div className="search-box">
-                  <span className="search-icon" aria-hidden="true">🔍</span>
                   <input
+                    id="search-requests"
+                    name="search"
                     type="text"
+                    aria-label="Cari rumah sakit, kota, atau golongan darah"
                     placeholder="Cari rumah sakit, kota, atau golongan darah..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
                   {search && (
-                    <button className="clear-search" onClick={() => setSearch('')}>×</button>
+                    <button type="button" className="clear-search" aria-label="Hapus pencarian" onClick={() => setSearch('')}>×</button>
                   )}
                 </div>
 

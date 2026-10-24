@@ -32,6 +32,49 @@ const MOCK_STATS = {
 
 const MOCK_CITIES = ['Balige', 'Laguboti', 'Parapat', 'Pangururan', 'Medan', 'Tarutung', 'Porsea'];
 
+function getFallbackData(path, options = {}) {
+  if (path === '/stats') return MOCK_STATS;
+  if (path === '/cities') return MOCK_CITIES;
+  if (path.startsWith('/donors/match')) return MOCK_DONORS;
+  if (path === '/donors') return MOCK_DONORS;
+  if (path === '/requests') return MOCK_REQUESTS;
+  if (path === '/auth/login' || path === '/auth/register') {
+    const body = options.body ? JSON.parse(options.body) : {};
+    return {
+      token: 'sada_mock_token',
+      user: {
+        id: 1,
+        name: body.name || (body.email ? body.email.split('@')[0] : 'Discha Hutasoit'),
+        email: body.email || 'discha@gmail.com',
+        blood_type: 'O+',
+        city: 'Balige',
+        phone: '081234567890',
+        ready: true,
+        last_donated: '2026-07-01',
+        eligible_date: '2026-09-14',
+        days_until_eligible: 0,
+      }
+    };
+  }
+  if (path === '/auth/me') {
+    return {
+      user: {
+        id: 1,
+        name: 'Discha Hutasoit',
+        email: 'discha@gmail.com',
+        blood_type: 'O+',
+        city: 'Balige',
+        phone: '081234567890',
+        ready: true,
+        last_donated: '2026-07-01',
+        eligible_date: '2026-09-14',
+        days_until_eligible: 0,
+      }
+    };
+  }
+  return { ok: true };
+}
+
 async function request(path, options = {}) {
   const token = getToken();
   const headers = {
@@ -39,6 +82,16 @@ async function request(path, options = {}) {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
+
+  const isBrowser = typeof window !== 'undefined';
+  const isProduction = isBrowser && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+  const isLocalApi = API_URL.includes('localhost') || API_URL.includes('127.0.0.1');
+
+  if (isProduction && isLocalApi) {
+    // Avoid console net::ERR_CONNECTION_REFUSED on Vercel deployment
+    return Promise.resolve(getFallbackData(path, options));
+  }
+
   try {
     const res = await fetch(`${API_URL}/api${path}`, { ...options, headers });
     if (res.status === 204) return null;
@@ -50,47 +103,7 @@ async function request(path, options = {}) {
     }
     return data;
   } catch (_err) {
-    // Robust fallback data for offline backend on Vercel deployment & Lighthouse audit
-    if (path === '/stats') return MOCK_STATS;
-    if (path === '/cities') return MOCK_CITIES;
-    if (path.startsWith('/donors/match')) return MOCK_DONORS;
-    if (path === '/donors') return MOCK_DONORS;
-    if (path === '/requests') return MOCK_REQUESTS;
-    if (path === '/auth/login' || path === '/auth/register') {
-      const body = options.body ? JSON.parse(options.body) : {};
-      return {
-        token: 'sada_mock_token',
-        user: {
-          id: 1,
-          name: body.name || (body.email ? body.email.split('@')[0] : 'Discha Hutasoit'),
-          email: body.email || 'discha@gmail.com',
-          blood_type: 'O+',
-          city: 'Balige',
-          phone: '081234567890',
-          ready: true,
-          last_donated: '2026-07-01',
-          eligible_date: '2026-09-14',
-          days_until_eligible: 0,
-        }
-      };
-    }
-    if (path === '/auth/me') {
-      return {
-        user: {
-          id: 1,
-          name: 'Discha Hutasoit',
-          email: 'discha@gmail.com',
-          blood_type: 'O+',
-          city: 'Balige',
-          phone: '081234567890',
-          ready: true,
-          last_donated: '2026-07-01',
-          eligible_date: '2026-09-14',
-          days_until_eligible: 0,
-        }
-      };
-    }
-    return { ok: true };
+    return getFallbackData(path, options);
   }
 }
 

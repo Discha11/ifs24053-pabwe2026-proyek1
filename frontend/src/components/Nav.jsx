@@ -43,13 +43,10 @@ export default function Nav({ urgent }) {
   return (
     <header>
       <nav id="nav" ref={navRef} data-s={compact ? 'compact' : 'open'}
-        role={compact ? 'button' : undefined} tabIndex={compact ? 0 : undefined}
-        aria-label={compact ? 'Buka menu navigasi' : 'Navigasi utama'}
-        onClick={reveal}
-        onKeyDown={(e) => { if (compact && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); reveal(); } }}>
+        aria-label="Navigasi utama">
         <div className="row">
           <Link className="logo" to="/" aria-label="SADA, ke beranda"><Svg markup={logo} /></Link>
-          <ul className="nl" id="nl" inert={inert}>
+          <ul className="nl" id="nl">
             {LINKS.map(([to, label]) => (
               <li key={to}>
                 <NavLink to={to} end={to === '/'} className={({ isActive }) => (isActive ? 'on' : '')}>{label}</NavLink>
@@ -68,7 +65,7 @@ export default function Nav({ urgent }) {
               )}
             </li>
           </ul>
-          <Link className="cta" to="/buat" inert={inert}>Buat Permintaan</Link>
+          <Link className="cta" to="/buat">Buat Permintaan</Link>
           <button className="burger" aria-label="Buka menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>{open ? '✕' : '☰'}</button>
         </div>
       </nav>
