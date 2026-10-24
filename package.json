@@ -3,6 +3,11 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "test": "npm --prefix backend test",
+    "test:coverage": "npm --prefix backend run test:coverage",
+    "build": "npm --prefix frontend run build"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
