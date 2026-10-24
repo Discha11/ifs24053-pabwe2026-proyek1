@@ -7,7 +7,10 @@ export default function Ticker({ requests }) {
     <div className="tick" aria-label="Permintaan darah terbaru">
       <div className="track">
         {items.map((r, i) => (
-          <span key={i}><em>{URGENCY[r.urgency][0]}</em>Butuh {fg(r.blood_type)} · {r.hospital} · {reqTime(r)}</span>
+          <span key={i}>
+            <em>{URGENCY[r?.urgency]?.[0] || 'Permintaan'}</em>
+            Butuh {fg(r?.blood_type || 'A+')} · {r?.hospital || 'RS Terdekat'} · {reqTime(r)}
+          </span>
         ))}
       </div>
     </div>

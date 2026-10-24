@@ -7,17 +7,30 @@ export const setToken = (t) => {
 };
 
 const MOCK_DONORS = [
-  { id: 1, name: 'Discha Hutasoit', blood_type: 'O+', city: 'Balige', phone: '081234567890', phone_masked: '0812****7890', ready: 1, last_donated: '2026-07-01', eligible_date: '2026-09-14' },
-  { id: 2, name: 'Baringin Siregar', blood_type: 'A+', city: 'Laguboti', phone: '082198765432', phone_masked: '0821****5432', ready: 1, last_donated: '2026-06-15', eligible_date: '2026-08-29' },
-  { id: 3, name: 'Saut Tambunan', blood_type: 'B+', city: 'Porsea', phone: '085211223344', phone_masked: '0852****3344', ready: 0, last_donated: '2026-10-10', eligible_date: '2026-12-24' },
+  { id: 1, name: 'Rina S.', blood_type: 'A+', city: 'Balige', phone: '628120000318', phone_masked: '62812****318', ready: 1, last_donated: '2026-06-25', eligible_date: '2026-09-08', days_until_eligible: 0 },
+  { id: 2, name: 'Doni P.', blood_type: 'O+', city: 'Balige', phone: '628120001502', phone_masked: '62812****502', ready: 0, last_donated: '2026-09-24', eligible_date: '2026-12-08', days_until_eligible: 45 },
+  { id: 3, name: 'Mawar T.', blood_type: 'A-', city: 'Laguboti', phone: '628120002276', phone_masked: '62812****276', ready: 1, last_donated: '2026-07-25', eligible_date: '2026-10-08', days_until_eligible: 0 },
+  { id: 4, name: 'Johannes L.', blood_type: 'O-', city: 'Parapat', phone: '628120003945', phone_masked: '62812****945', ready: 1, last_donated: '2026-04-06', eligible_date: '2026-06-20', days_until_eligible: 0 },
+  { id: 5, name: 'Sari N.', blood_type: 'B+', city: 'Balige', phone: '628120004160', phone_masked: '62812****160', ready: 1, last_donated: '2026-08-04', eligible_date: '2026-10-18', days_until_eligible: 0 },
+  { id: 6, name: 'Bona H.', blood_type: 'AB+', city: 'Pangururan', phone: '628120005739', phone_masked: '62812****739', ready: 0, last_donated: '2026-10-14', eligible_date: '2026-12-28', days_until_eligible: 65 },
 ];
 
 const MOCK_REQUESTS = [
-  { id: 1, patient_name: 'Ny. Maria Simanjuntak', hospital: 'RS HKBP Balige', blood_type: 'O+', bags: 2, urgent: 1, contact_name: 'Poltak', contact_phone: '081260001111', created_at: '2026-10-24 10:00:00' },
-  { id: 2, patient_name: 'Tn. Jonner Nababan', hospital: 'RSUD Porsea', blood_type: 'A+', bags: 1, urgent: 0, contact_name: 'Ria', contact_phone: '082165554444', created_at: '2026-10-23 15:30:00' },
+  { id: 1, blood_type: 'A+', hospital: 'RS Balige', city: 'Balige', units: 2, urgency: 'darurat', contact_phone: '628120000000', needed_date: null, status: 'open', created_at: new Date(Date.now() - 2 * 3600000).toISOString() },
+  { id: 2, blood_type: 'O-', hospital: 'Puskesmas Parapat', city: 'Parapat', units: 1, urgency: 'segera', contact_phone: '628120000000', needed_date: null, status: 'open', created_at: new Date(Date.now() - 26 * 3600000).toISOString() },
+  { id: 3, blood_type: 'B+', hospital: 'RS Laguboti', city: 'Laguboti', units: 3, urgency: 'terjadwal', contact_phone: '628120000000', needed_date: new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10), status: 'open', created_at: new Date(Date.now() - 30 * 3600000).toISOString() },
+  { id: 4, blood_type: 'AB+', hospital: 'RS Pangururan', city: 'Pangururan', units: 1, urgency: 'darurat', contact_phone: '628120000000', needed_date: null, status: 'open', created_at: new Date(Date.now() - 5 * 3600000).toISOString() },
 ];
 
-const MOCK_CITIES = ['Balige', 'Laguboti', 'Porsea', 'Tarutung', 'Pangururan', 'Siborongborong', 'Doloksanggul'];
+const MOCK_STATS = {
+  donors: 12,
+  ready_today: 8,
+  open_requests: 4,
+  urgent_requests: 2,
+  cities: 4,
+};
+
+const MOCK_CITIES = ['Balige', 'Laguboti', 'Parapat', 'Pangururan', 'Medan', 'Tarutung', 'Porsea'];
 
 async function request(path, options = {}) {
   const token = getToken();
@@ -37,8 +50,8 @@ async function request(path, options = {}) {
     }
     return data;
   } catch (_err) {
-    // Fallback data if backend is offline on Vercel deployment
-    if (path === '/stats') return { donors: 15, ready_today: 9, open_requests: 2, urgent_requests: 1 };
+    // Robust fallback data for offline backend on Vercel deployment & Lighthouse audit
+    if (path === '/stats') return MOCK_STATS;
     if (path === '/cities') return MOCK_CITIES;
     if (path.startsWith('/donors/match')) return MOCK_DONORS;
     if (path === '/donors') return MOCK_DONORS;

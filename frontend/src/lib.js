@@ -12,11 +12,12 @@ export function fmtDate(iso) {
 }
 
 export function reqTime(r) {
+  if (!r) return '';
   if (r.urgency === 'terjadwal' && r.needed_date) {
     const d = Math.ceil((Date.parse(r.needed_date) - todayMs()) / 86400000);
     return d <= 0 ? 'Dibutuhkan hari ini' : `Dibutuhkan ${d} hari lagi`;
   }
-  const min = (Date.now() - Date.parse(r.created_at)) / 60000;
+  const min = (Date.now() - (Date.parse(r.created_at) || Date.now())) / 60000;
   if (min < 60) return `Diminta ${Math.max(1, Math.round(min))} menit lalu`;
   if (min < 24 * 60) return `Diminta ${Math.floor(min / 60)} jam lalu`;
   if (min < 48 * 60) return 'Diminta kemarin';
