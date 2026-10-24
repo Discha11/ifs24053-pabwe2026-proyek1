@@ -15,11 +15,6 @@ export default function Settings() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth/login');
-    }
-  }, [user, loading, navigate]);
 
   useEffect(() => {
     api.cities().then(setCities).catch(() => {});

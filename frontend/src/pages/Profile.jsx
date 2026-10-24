@@ -15,11 +15,6 @@ export default function Profile() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/masuk');
-    }
-  }, [user, loading, navigate]);
 
   useEffect(() => {
     api.cities().then(setCities).catch(() => {});

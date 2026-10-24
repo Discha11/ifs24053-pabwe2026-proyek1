@@ -9,11 +9,6 @@ export default function Riwayat() {
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth/login');
-    }
-  }, [user, loading, navigate]);
 
   if (loading || !user) {
     return (
