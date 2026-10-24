@@ -39,12 +39,12 @@ export default function Login() {
             </ul>
           )}
 
-          <label htmlFor="email">
+          <label htmlFor="username">
             Alamat Email / Username
             <input
-              id="email"
-              name="email"
-              type="email"
+              id="username"
+              name="username"
+              type="text"
               autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -67,7 +67,7 @@ export default function Login() {
             />
           </label>
 
-          <button className="go2" disabled={busy} type="submit">
+          <button id="btn-submit" className="go2" disabled={busy} type="submit">
             {busy ? 'Memeriksa...' : 'Masuk Sekarang'}
           </button>
 
