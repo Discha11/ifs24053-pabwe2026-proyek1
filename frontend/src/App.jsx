@@ -28,7 +28,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Nav urgent={urgent} />
-      <Suspense fallback={<div className="wrap pg" style={{ minHeight: '60vh' }}><p className="nx">Memuat halaman...</p></div>}>
+      <Suspense fallback={<main className="wrap pg" style={{ minHeight: '60vh' }}><h1 className="sr">Memuat Halaman</h1><p className="nx">Memuat halaman...</p></main>}>
         <Routes>
           {/* Halaman Publik */}
           <Route path="/" element={<Home />} />

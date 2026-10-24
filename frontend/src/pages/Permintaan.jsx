@@ -5,9 +5,14 @@ import { useRequests } from '../lib.js';
 export default function Permintaan() {
   const { requests, error } = useRequests();
   const { state } = useLocation();
+
   return (
     <main>
       <div className="wrap pg" style={{ paddingBottom: 0 }}>
+        <h1 className="ph">Daftar Permintaan Darah</h1>
+        <p className="sub">
+          Daftar kebutuhan darah mendesak dan terjadwal di rumah sakit dan puskesmas kawasan Danau Toba.
+        </p>
         {state?.created && (
           <p className="msg ok" role="status" style={{ marginBottom: 20 }}>
             Permintaan darah berhasil dibuat dan langsung terdaftar aktif.
