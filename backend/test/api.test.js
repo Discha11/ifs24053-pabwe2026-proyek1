@@ -169,4 +169,87 @@ test('auth register, login, me, profile, dan catat donor bekerja', async () => {
   const donatedData = await donatedRes.json();
   assert.strictEqual(donatedData.user.ready, false);
   assert.strictEqual(donatedData.user.days_until_eligible, 75);
+
+  // Update profil dengan tanggal masa depan harus 400
+  const futureRes = await j('/api/auth/profile', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ last_donated: '2099-01-01' }),
+  });
+  assert.strictEqual(futureRes.status, 400);
+
+  // Update profil dengan menghapus tanggal donor (kosong)
+  const clearRes = await j('/api/auth/profile', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ last_donated: '' }),
+  });
+  assert.strictEqual(clearRes.status, 200);
+  assert.strictEqual((await clearRes.json()).user.last_donated, null);
+
+  // Login tanpa email atau password harus 400
+  assert.strictEqual((await post('/api/auth/login', { email: '' })).status, 400);
+
+  // Register user dengan nomor HP yang SUDAH ADA di tabel donors (menautkan donor)
+  const linkUserRes = await post('/api/auth/register', {
+    email: 'link.donor@sada.id',
+    password: 'password123',
+    name: 'Rina S. Akun',
+    blood_type: 'A+',
+    city: 'Balige',
+    phone: '08120000318', // Nomor donor contoh Rina S.
+  });
+  assert.strictEqual(linkUserRes.status, 201);
+
+  // Register user dengan nomor HP yang sudah ada di users harus 409
+  const dupPhoneRes = await post('/api/auth/register', {
+    email: 'newemail@sada.id',
+    password: 'password123',
+    name: 'Duplikat HP',
+    blood_type: 'A+',
+    city: 'Balige',
+    phone: '081299998888',
+  });
+  assert.strictEqual(dupPhoneRes.status, 409);
+
+  // Token tidak valid atau format salah harus 401
+  assert.strictEqual((await j('/api/auth/me', { headers: { Authorization: 'Bearer invalid.token.jwt' } })).status, 401);
+  assert.strictEqual((await j('/api/auth/me', { headers: { Authorization: 'Basic bukanbearer' } })).status, 401);
+});
+
+test('hapus donor dan hapus permintaan sukses 204', async () => {
+  // Buat donor baru lalu hapus
+  const dRes = await post('/api/donors', { name: 'Donor Hapus', blood_type: 'B+', city: 'Balige', phone: '081234445555' });
+  assert.strictEqual(dRes.status, 201);
+  const donor = await dRes.json();
+  const delDonorRes = await j(`/api/donors/${donor.id}`, { method: 'DELETE' });
+  assert.strictEqual(delDonorRes.status, 204);
+
+  // Buat request baru lalu hapus
+  const rRes = await post('/api/requests', {
+    blood_type: 'O+', hospital: 'RS Hapus', city: 'Balige', units: 1, urgency: 'segera', contact_phone: '081233334444'
+  });
+  assert.strictEqual(rRes.status, 201);
+  const req = await rRes.json();
+  const delReqRes = await j(`/api/requests/${req.id}`, { method: 'DELETE' });
+  assert.strictEqual(delReqRes.status, 204);
+});
+
+test('validasi needed_date pada permintaan darah', async () => {
+  const base = { blood_type: 'A+', hospital: 'RS Tanggal', city: 'Balige', units: 2, urgency: 'segera', contact_phone: '081255556666' };
+  // needed_date bukan tanggal
+  assert.strictEqual((await post('/api/requests', { ...base, needed_date: 'bukan-tanggal' })).status, 400);
+  // needed_date di masa lalu
+  assert.strictEqual((await post('/api/requests', { ...base, needed_date: '2020-01-01' })).status, 400);
+  // needed_date valid di masa depan
+  const ok = await post('/api/requests', { ...base, needed_date: '2027-12-31' });
+  assert.strictEqual(ok.status, 201);
+});
+
+test('penanganan error internal server 500', async () => {
+  const orig = db.prepare;
+  db.prepare = () => { throw new Error('Simulasi DB Error'); };
+  const res = await j('/api/stats');
+  assert.strictEqual(res.status, 500);
+  db.prepare = orig;
 });

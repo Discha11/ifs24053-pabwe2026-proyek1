@@ -117,9 +117,8 @@ app.post('/api/donors', (req, res) => {
     const info = db.prepare(`INSERT INTO donors (name, blood_type, city, phone, last_donated)
                              VALUES (@name, @blood_type, @city, @phone, @last_donated)`).run(value);
     res.status(201).json(donorView(db.prepare('SELECT * FROM donors WHERE id = ?').get(info.lastInsertRowid)));
-  } catch (e) {
-    if (String(e.code).startsWith('SQLITE_CONSTRAINT')) return res.status(409).json({ error: 'Nomor WhatsApp sudah terdaftar' });
-    throw e;
+  } catch (_e) {
+    return res.status(409).json({ error: 'Nomor WhatsApp sudah terdaftar' });
   }
 });
 
