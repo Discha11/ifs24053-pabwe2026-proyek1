@@ -39,10 +39,13 @@ export default function Login() {
             </ul>
           )}
 
-          <label>
-            Alamat Email
+          <label htmlFor="email">
+            Alamat Email / Username
             <input
+              id="email"
+              name="email"
               type="email"
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="nama@email.com"
@@ -50,10 +53,13 @@ export default function Login() {
             />
           </label>
 
-          <label>
+          <label htmlFor="password">
             Kata Sandi
             <input
+              id="password"
+              name="password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimal 6 karakter"
@@ -61,7 +67,7 @@ export default function Login() {
             />
           </label>
 
-          <button className="go2" disabled={busy}>
+          <button className="go2" disabled={busy} type="submit">
             {busy ? 'Memeriksa...' : 'Masuk Sekarang'}
           </button>
 

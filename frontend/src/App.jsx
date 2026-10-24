@@ -11,6 +11,8 @@ import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Profile from './pages/Profile.jsx';
+import Settings from './pages/Settings.jsx';
+import Riwayat from './pages/Riwayat.jsx';
 
 export default function App() {
   const { pathname } = useLocation();
@@ -21,14 +23,25 @@ export default function App() {
     <AuthProvider>
       <Nav urgent={urgent} />
       <Routes>
+        {/* Halaman Publik */}
         <Route path="/" element={<Home />} />
         <Route path="/cari" element={<Cari />} />
         <Route path="/permintaan" element={<Permintaan />} />
         <Route path="/buat" element={<Buat />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Halaman Auth */}
         <Route path="/masuk" element={<Login />} />
+        <Route path="/auth/login" element={<Login />} />
         <Route path="/daftar" element={<Register />} />
+        <Route path="/auth/register" element={<Register />} />
+
+        {/* Halaman Terproteksi (Minimal 4 path) */}
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profil" element={<Profile />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/riwayat" element={<Riwayat />} />
+
         <Route path="*" element={<main className="wrap pg"><h1 className="ph">Halaman tidak ditemukan</h1><p className="sub">Alamat yang kamu buka tidak ada. Kembali ke beranda lewat menu di atas.</p></main>} />
       </Routes>
       <footer><div className="wrap">SADA · Sahabat Aksi Donor Anda. “Sada” berarti “satu” dalam bahasa Batak Toba.</div></footer>
