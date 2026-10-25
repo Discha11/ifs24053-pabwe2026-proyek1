@@ -18,14 +18,24 @@ export default function Nav({ urgent }) {
 
   useEffect(() => { setPinned(false); setOpen(false); }, [pathname]);
   useEffect(() => {
-    const onScroll = () => { const s = scrollY > 40; setScrolled(s); if (!s) setPinned(false); };
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const s = window.scrollY > 40;
+          setScrolled(s);
+          if (!s) setPinned(false);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     const mq = matchMedia('(min-width:768px)');
     const onMq = () => setDesk(mq.matches);
     const onKey = (e) => { if (e.key === 'Escape') { setPinned(false); setOpen(false); } };
     const onDown = (e) => {
       if (!navRef.current?.contains(e.target) && !dropRef.current?.contains(e.target)) { setPinned(false); setOpen(false); }
     };
-    onScroll();
     addEventListener('scroll', onScroll, { passive: true });
     mq.addEventListener('change', onMq);
     addEventListener('keydown', onKey);
