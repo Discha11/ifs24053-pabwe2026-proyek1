@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCities, useDonorMatch } from '../hooks/index.js';
@@ -154,3 +155,14 @@ export default function ActiveRequests({ requests = [], error = false }) {
     </section>
   );
 }
+
+ActiveRequests.propTypes = {
+  requests: PropTypes.arrayOf(PropTypes.object),
+  error: PropTypes.bool,
+};
+
+ActiveRequests.defaultProps = {
+  requests: [],
+  error: false,
+};
+

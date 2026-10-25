@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useCities, useDonorMatch } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType, formatDate } from '../lib.js';
@@ -125,3 +126,20 @@ export default function CompatibilityCalculator({
     </div>
   );
 }
+
+CompatibilityCalculator.propTypes = {
+  heading: PropTypes.string,
+  subheading: PropTypes.string,
+  initialGol: PropTypes.string,
+  initialCity: PropTypes.string,
+  className: PropTypes.string,
+};
+
+CompatibilityCalculator.defaultProps = {
+  heading: 'Cek Kompatibilitas Golongan Darah',
+  subheading: 'Pilih golongan darah pasien untuk melihat siapa saja pendonor kompatibel yang sudah melewati jeda 75 hari donor terakhir.',
+  initialGol: 'A+',
+  initialCity: '',
+  className: '',
+};
+

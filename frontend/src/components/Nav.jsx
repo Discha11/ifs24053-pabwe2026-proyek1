@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Logo } from './Icons.jsx';
@@ -46,8 +47,6 @@ export default function Nav({ urgent }) {
   }, []);
 
   const compact = desk && scrolled && !pinned;
-  const reveal = () => compact && setPinned(true);
-  const inert = compact ? '' : undefined;
 
   return (
     <header>
@@ -90,3 +89,12 @@ export default function Nav({ urgent }) {
     </header>
   );
 }
+
+Nav.propTypes = {
+  urgent: PropTypes.number,
+};
+
+Nav.defaultProps = {
+  urgent: 0,
+};
+

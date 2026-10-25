@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCities } from '../hooks/index.js';
-import { isValidIndonesianPhone, sanitizePhone, hasMinLength } from '../utils/validation.js';
+import { validationSchemas, sanitizePhone } from '../utils/validation.js';
 
 export default function Settings() {
-  const navigate = useNavigate();
   const { user, loading, updateProfile } = useAuth();
   const { cities } = useCities();
   const [name, setName] = useState('');
@@ -29,17 +28,10 @@ export default function Settings() {
     setMsg('');
     setErr('');
 
-    if (!hasMinLength(name, 3)) {
-      setErr('Nama lengkap minimal 3 karakter.');
+    const validationErrors = validationSchemas.settings({ name, phone });
+    if (validationErrors.length > 0) {
+      setErr(validationErrors[0]);
       return;
-    }
-
-    if (phone) {
-      const cleanPhone = sanitizePhone(phone);
-      if (!isValidIndonesianPhone(cleanPhone)) {
-        setErr('Nomor WhatsApp harus nomor Indonesia yang valid (contoh: 081234567890).');
-        return;
-      }
     }
 
     setBusy(true);

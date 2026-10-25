@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { URGENCY_CONFIG, formatBloodType, formatRequestTime } from '../lib.js';
 
 /**
@@ -26,3 +27,19 @@ export default function Ticker({ requests }) {
     </div>
   );
 }
+
+Ticker.propTypes = {
+  requests: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      urgency: PropTypes.string,
+      blood_type: PropTypes.string,
+      hospital: PropTypes.string,
+    })
+  ),
+};
+
+Ticker.defaultProps = {
+  requests: null,
+};
+

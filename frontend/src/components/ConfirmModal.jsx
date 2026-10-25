@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useEffect, useRef } from 'react';
 
 /**
@@ -25,7 +26,6 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }) {
-  const modalCardRef = useRef(null);
   const cancelButtonRef = useRef(null);
   const confirmButtonRef = useRef(null);
   const previouslyFocusedElementRef = useRef(null);
@@ -92,7 +92,7 @@ export default function ConfirmModal({
         if (e.target === e.currentTarget) onCancel();
       }}
     >
-      <div ref={modalCardRef} className="modal-card">
+      <div className="modal-card">
         <h3 id="confirm-modal-title" className="modal-title">
           {title}
         </h3>
@@ -122,3 +122,22 @@ export default function ConfirmModal({
     </div>
   );
 }
+
+ConfirmModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  title: PropTypes.string,
+  message: PropTypes.string.isRequired,
+  confirmText: PropTypes.string,
+  cancelText: PropTypes.string,
+  isDanger: PropTypes.bool,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
+
+ConfirmModal.defaultProps = {
+  title: 'Konfirmasi Aksi',
+  confirmText: 'Lanjutkan',
+  cancelText: 'Batal',
+  isDanger: false,
+};
+

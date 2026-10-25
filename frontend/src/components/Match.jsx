@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import CompatibilityCalculator from './CompatibilityCalculator.jsx';
 
 export default function Match({
@@ -12,3 +13,15 @@ export default function Match({
     </section>
   );
 }
+
+Match.propTypes = {
+  heading: PropTypes.string,
+  subheading: PropTypes.string,
+};
+
+Match.defaultProps = {
+  heading: 'Cocokkan pendonor dengan permintaan',
+  subheading:
+    'Pilih golongan darah pasien. SADA menampilkan pendonor yang kompatibel, bukan hanya yang golongannya sama, lalu menandai siapa yang sudah boleh donor lagi.',
+};
+

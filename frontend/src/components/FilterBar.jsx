@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 
 export default function FilterBar({
@@ -108,3 +109,27 @@ export default function FilterBar({
     </div>
   );
 }
+
+FilterBar.propTypes = {
+  search: PropTypes.string.isRequired,
+  onSearchChange: PropTypes.func.isRequired,
+  selectedGol: PropTypes.string.isRequired,
+  onGolChange: PropTypes.func.isRequired,
+  selectedCity: PropTypes.string.isRequired,
+  onCityChange: PropTypes.func.isRequired,
+  selectedUrgency: PropTypes.string.isRequired,
+  onUrgencyChange: PropTypes.func.isRequired,
+  priorityUrgency: PropTypes.bool.isRequired,
+  onPriorityChange: PropTypes.func.isRequired,
+  cities: PropTypes.arrayOf(PropTypes.string),
+  onReset: PropTypes.func.isRequired,
+  totalFiltered: PropTypes.number,
+  totalRequests: PropTypes.number,
+};
+
+FilterBar.defaultProps = {
+  cities: [],
+  totalFiltered: 0,
+  totalRequests: 0,
+};
+

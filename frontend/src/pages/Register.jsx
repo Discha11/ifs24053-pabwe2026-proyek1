@@ -3,12 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCities } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
-import {
-  isValidIndonesianPhone,
-  sanitizePhone,
-  isValidEmail,
-  hasMinLength,
-} from '../utils/validation.js';
+import { validationSchemas } from '../utils/validation.js';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -34,46 +29,9 @@ export default function Register() {
 
   const setField = (key) => (e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }));
 
-  function validateForm() {
-    const errs = [];
-    if (!hasMinLength(formData.name, 3)) {
-      errs.push('Nama lengkap minimal 3 karakter.');
-    }
-
-    if (!isValidEmail(formData.email)) {
-      errs.push('Format alamat email tidak valid.');
-    }
-
-    if (formData.password.length < 6) {
-      errs.push('Kata sandi minimal 6 karakter demi keamanan akun.');
-    }
-
-    if (!BLOOD_TYPES.includes(formData.blood_type)) {
-      errs.push('Pilih golongan darah yang valid.');
-    }
-
-    if (!formData.city) {
-      errs.push('Pilih kota domisili Anda.');
-    }
-
-    const cleanPhone = sanitizePhone(formData.phone);
-    if (!isValidIndonesianPhone(cleanPhone)) {
-      errs.push('Nomor WhatsApp harus nomor Indonesia yang valid (contoh: 081234567890).');
-    }
-
-    if (formData.last_donated) {
-      const today = new Date().toISOString().slice(0, 10);
-      if (formData.last_donated > today) {
-        errs.push('Tanggal terakhir donor tidak boleh lebih dari hari ini.');
-      }
-    }
-
-    return errs;
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
-    const validationErrors = validateForm();
+    const validationErrors = validationSchemas.register(formData);
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
       return;

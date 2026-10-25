@@ -80,11 +80,11 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/auth/login" element={<Login />} />
 
-            {/* Halaman Terproteksi dengan Route Guard Eksplisit */}
+            {/* Halaman Terproteksi dengan Route Guard Eksplisit & Role-based Access Control */}
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="admin">
                   <Dashboard />
                 </ProtectedRoute>
               }

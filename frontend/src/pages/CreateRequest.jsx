@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCities, useRequests } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
-import { isValidIndonesianPhone, sanitizePhone, hasMinLength } from '../utils/validation.js';
+import { validationSchemas, sanitizePhone } from '../utils/validation.js';
 
 const getTodayDateString = () => new Date().toISOString().slice(0, 10);
 
@@ -39,26 +39,15 @@ export default function CreateRequest() {
     e.preventDefault();
     setErrors([]);
 
-    const validationErrors = [];
-    if (!hasMinLength(formData.hospital, 3)) {
-      validationErrors.push('Nama rumah sakit/faskes harus diisi minimal 3 karakter.');
-    }
-    const unitsNum = Number(formData.units);
-    if (isNaN(unitsNum) || unitsNum < 1 || unitsNum > 20) {
-      validationErrors.push('Jumlah kantong darah harus antara 1 sampai 20 kantong.');
-    }
-    const cleanPhone = sanitizePhone(formData.contact_phone);
-    if (!isValidIndonesianPhone(cleanPhone)) {
-      validationErrors.push('Nomor WhatsApp tidak valid. Masukkan nomor HP aktif (contoh: 081234567890).');
-    }
-    if (formData.urgency === 'terjadwal' && !formData.needed_date) {
-      validationErrors.push('Tanggal dibutuhkan harus diisi untuk kebutuhan terjadwal.');
-    }
+    const validationErrors = validationSchemas.createRequest(formData);
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
       return;
     }
+
+    const cleanPhone = sanitizePhone(formData.contact_phone);
+    const unitsNum = Number(formData.units);
 
     setSubmitting(true);
     try {

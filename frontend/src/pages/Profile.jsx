@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import { useCities } from '../hooks/index.js';
 import { formatBloodType, formatDate } from '../lib.js';
+import { validationSchemas } from '../utils/validation.js';
 
 export default function Profile() {
-  const navigate = useNavigate();
   const { user, loading, logout, updateProfile, recordDonated } = useAuth();
   const { cities } = useCities();
   const [editName, setEditName] = useState('');
@@ -55,17 +55,14 @@ export default function Profile() {
     setMsg('');
     setErr('');
 
-    if (editName.trim().length < 3) {
-      setErr('Nama lengkap minimal 3 karakter.');
-      return;
-    }
+    const validationErrors = validationSchemas.profile({
+      name: editName,
+      last_donated: editLastDonated,
+    });
 
-    if (editLastDonated) {
-      const today = new Date().toISOString().slice(0, 10);
-      if (editLastDonated > today) {
-        setErr('Tanggal terakhir donor tidak boleh di masa mendatang.');
-        return;
-      }
+    if (validationErrors.length > 0) {
+      setErr(validationErrors[0]);
+      return;
     }
 
     setBusy(true);

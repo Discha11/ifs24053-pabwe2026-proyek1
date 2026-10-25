@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { URGENCY_CONFIG, formatBloodType, formatRequestTime } from '../lib.js';
 
 /**
@@ -79,3 +80,29 @@ export default function RequestList({ requests, error, onClose, onDelete }) {
     </div>
   );
 }
+
+RequestList.propTypes = {
+  requests: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      blood_type: PropTypes.string.isRequired,
+      hospital: PropTypes.string.isRequired,
+      units: PropTypes.number.isRequired,
+      city: PropTypes.string.isRequired,
+      urgency: PropTypes.string.isRequired,
+      contact_phone: PropTypes.string,
+      wa_url: PropTypes.string,
+    })
+  ),
+  error: PropTypes.bool,
+  onClose: PropTypes.func,
+  onDelete: PropTypes.func,
+};
+
+RequestList.defaultProps = {
+  requests: null,
+  error: false,
+  onClose: undefined,
+  onDelete: undefined,
+};
+

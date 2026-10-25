@@ -1,8 +1,17 @@
 /**
  * Layanan manajemen penyimpanan token autentikasi yang aman.
- * Menghindari penyimpanan jangka panjang di localStorage rentan XSS.
- * Menggunakan primary in-memory cache, sessionStorage (terhapus otomatis saat tab ditutup),
- * serta cookie SameSite=Strict untuk mendukung standar keamanan modern.
+ *
+ * ARSITEKTUR KEAMANAN TOKEN & REKOMENDASI HTTPONLY COOKIE:
+ * 1. Di lingkungan produksi ideal, autentikasi berbasis HttpOnly cookie (diterbitkan oleh server
+ *    melalui header response Set-Cookie: ...; HttpOnly; Secure; SameSite=Strict) adalah standar emas
+ *    karena sepenuhnya kebal dari pencurian token via serangan XSS di sisi JavaScript browser.
+ * 2. Klien frontend SADA dikonfigurasi secara bawaan dengan `credentials: 'include'` pada seluruh
+ *    pemanggilan fetch HTTP di api.js untuk secara otomatis mendukung dan meneruskan HttpOnly cookie server.
+ * 3. Untuk skenario decoupled REST API di mana back-end mengirimkan Bearer token dalam JSON body,
+ *    modul ini memprioritaskan penyimpanan di IN-MEMORY (variabel memori runtime JavaScript `inMemoryToken`).
+ * 4. Kunci localStorage sepenuhnya dihindari untuk mencegah persistensi token jangka panjang yang rentan XSS.
+ *    Fallback ke sessionStorage dan cookie SameSite=Strict hanya aktif untuk mempertahankan sesi saat tab aktif di-refresh,
+ *    serta seluruh state dibersihkan tuntas saat token kedaluwarsa (JWT exp check) atau saat logout.
  */
 
 let inMemoryToken = null;

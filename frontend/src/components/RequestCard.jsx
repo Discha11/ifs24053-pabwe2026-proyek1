@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { formatBloodType, formatDate } from '../lib.js';
 
 export default function RequestCard({
@@ -160,3 +161,32 @@ export default function RequestCard({
     </article>
   );
 }
+
+RequestCard.propTypes = {
+  request: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    hospital: PropTypes.string.isRequired,
+    city: PropTypes.string.isRequired,
+    blood_type: PropTypes.string.isRequired,
+    units: PropTypes.number.isRequired,
+    urgency: PropTypes.string.isRequired,
+    needed_date: PropTypes.string,
+    contact_phone: PropTypes.string,
+    wa_url: PropTypes.string,
+  }).isRequired,
+  isExpanded: PropTypes.bool,
+  onToggleMatch: PropTypes.func.isRequired,
+  matchInfo: PropTypes.shape({
+    compatible_types: PropTypes.arrayOf(PropTypes.string),
+    ready_count: PropTypes.number,
+    results: PropTypes.arrayOf(PropTypes.object),
+  }),
+  matchLoading: PropTypes.bool,
+};
+
+RequestCard.defaultProps = {
+  isExpanded: false,
+  matchInfo: null,
+  matchLoading: false,
+};
+

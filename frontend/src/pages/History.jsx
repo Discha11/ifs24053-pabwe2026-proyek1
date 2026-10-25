@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import { formatBloodType, formatDate } from '../lib.js';
 
 export default function History() {
-  const navigate = useNavigate();
   const { user, loading, recordDonated } = useAuth();
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');

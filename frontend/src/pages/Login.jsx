@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { validationSchemas } from '../utils/validation.js';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,22 +11,9 @@ export default function Login() {
   const [errors, setErrors] = useState([]);
   const [busy, setBusy] = useState(false);
 
-  function validate() {
-    const errs = [];
-    if (!email.trim()) {
-      errs.push('Alamat email atau username wajib diisi.');
-    }
-    if (!password) {
-      errs.push('Kata sandi wajib diisi.');
-    } else if (password.length < 6) {
-      errs.push('Kata sandi minimal 6 karakter.');
-    }
-    return errs;
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
-    const valErrs = validate();
+    const valErrs = validationSchemas.login({ email, password });
     if (valErrs.length > 0) {
       setErrors(valErrs);
       return;

@@ -1,96 +1,61 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback } from 'react';
 import { api } from '../api.js';
+import { useApiFetch } from './useApiFetch.js';
 
 /**
  * Custom hook untuk mengambil, menyinkronkan, dan mengelola data pendonor darah.
- * Menggunakan AbortController untuk menjamin cleanup konsisten pada setiap reload dan unmount.
+ * Menggunakan generic useApiFetch untuk konsistensi lifecycle dan penanganan pembatalan request.
  *
  * @returns {{
  *   donors: Array<object>|null,
  *   loading: boolean,
  *   error: boolean,
- *   reload: () => void,
+ *   reload: () => Promise<any>,
  *   createDonor: (data: object) => Promise<any>,
  *   markDonated: (id: number|string) => Promise<any>,
  *   deleteDonor: (id: number|string) => Promise<any>
  * }}
  */
 export function useDonors() {
-  const [donors, setDonors] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const abortControllerRef = useRef(null);
-
-  const fetchDonors = useCallback(() => {
-    // Batalkan pemanggilan aktif sebelumnya jika ada reload berturut-turut
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-    setLoading(true);
-
-    api
-      .donors({ signal: controller.signal })
-      .then((donorList) => {
-        if (!controller.signal.aborted) {
-          setDonors(donorList);
-          setError(false);
-        }
-      })
-      .catch((err) => {
-        if (err.name !== 'AbortError' && !controller.signal.aborted) {
-          setError(true);
-        }
-      })
-      .finally(() => {
-        if (abortControllerRef.current === controller) {
-          setLoading(false);
-        }
-      });
-  }, []);
-
-  useEffect(() => {
-    fetchDonors();
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [fetchDonors]);
+  const {
+    data: donors,
+    loading,
+    error,
+    reload,
+  } = useApiFetch((signal) => api.donors({ signal }));
 
   const createDonor = useCallback(
     async (data) => {
       const res = await api.createDonor(data);
-      fetchDonors();
+      reload().catch(() => {});
       return res;
     },
-    [fetchDonors]
+    [reload]
   );
 
   const markDonated = useCallback(
     async (id) => {
       const res = await api.markDonated(id);
-      fetchDonors();
+      reload().catch(() => {});
       return res;
     },
-    [fetchDonors]
+    [reload]
   );
 
   const deleteDonor = useCallback(
     async (id) => {
       const res = await api.deleteDonor(id);
-      fetchDonors();
+      reload().catch(() => {});
       return res;
     },
-    [fetchDonors]
+    [reload]
   );
 
   return {
     donors,
     loading,
     error,
-    reload: fetchDonors,
+    reload,
     createDonor,
     markDonated,
     deleteDonor,

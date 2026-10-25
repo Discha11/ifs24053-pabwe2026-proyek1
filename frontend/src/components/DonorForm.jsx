@@ -1,7 +1,8 @@
+import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useDonors } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
-import { isValidIndonesianPhone, sanitizePhone, hasMinLength } from '../utils/validation.js';
+import { validationSchemas, sanitizePhone } from '../utils/validation.js';
 
 /**
  * Komponen form pendaftaran pendonor baru pada panel kelola data admin.
@@ -35,19 +36,14 @@ export default function DonorForm({ cities = [], onSaved }) {
     e.preventDefault();
     setErrors([]);
 
-    const validationErrors = [];
-    if (!hasMinLength(formData.name, 2)) {
-      validationErrors.push('Nama lengkap harus diisi minimal 2 karakter.');
-    }
-    const cleanPhone = sanitizePhone(formData.phone);
-    if (!isValidIndonesianPhone(cleanPhone)) {
-      validationErrors.push('Nomor WhatsApp tidak valid. Masukkan nomor HP aktif (contoh: 081234567890).');
-    }
+    const validationErrors = validationSchemas.donor(formData);
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
       return;
     }
+
+    const cleanPhone = sanitizePhone(formData.phone);
 
     setSubmitting(true);
     try {
@@ -157,3 +153,14 @@ export default function DonorForm({ cities = [], onSaved }) {
     </form>
   );
 }
+
+DonorForm.propTypes = {
+  cities: PropTypes.arrayOf(PropTypes.string),
+  onSaved: PropTypes.func,
+};
+
+DonorForm.defaultProps = {
+  cities: [],
+  onSaved: undefined,
+};
+
