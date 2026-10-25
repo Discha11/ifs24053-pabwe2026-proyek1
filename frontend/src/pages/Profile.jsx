@@ -2,22 +2,21 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import ConfirmModal from '../components/ConfirmModal.jsx';
+import { useCities } from '../hooks/index.js';
 import { fg, fmtDate } from '../lib.js';
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, loading, logout, updateProfile, recordDonated } = useAuth();
-  const [cities, setCities] = useState([]);
+  const { cities } = useCities();
   const [editName, setEditName] = useState('');
   const [editCity, setEditCity] = useState('');
   const [editLastDonated, setEditLastDonated] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    api.cities().then(setCities).catch(() => {});
-  }, []);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -71,10 +70,12 @@ export default function Profile() {
     }
   }
 
-  async function handleRecordDonated() {
-    if (!window.confirm('Catat bahwa Anda telah mendonorkan darah hari ini? Jeda donor 75 hari akan dihitung mulai hari ini.')) {
-      return;
-    }
+  const handleRecordDonated = () => {
+    setShowConfirm(true);
+  };
+
+  const executeRecordDonated = async () => {
+    setShowConfirm(false);
     setMsg('');
     setErr('');
     try {
@@ -83,7 +84,7 @@ export default function Profile() {
     } catch (error) {
       setErr(error.message);
     }
-  }
+  };
 
   return (
     <main id="main-content" role="main">
@@ -191,6 +192,15 @@ export default function Profile() {
             {busy ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
         </form>
+
+        <ConfirmModal
+          isOpen={showConfirm}
+          title="Konfirmasi Pencatatan Donor"
+          message="Catat bahwa Anda telah mendonorkan darah hari ini? Jeda donor 75 hari berikutnya akan dihitung mulai hari ini."
+          confirmText="Ya, Catat Donor"
+          onConfirm={executeRecordDonated}
+          onCancel={() => setShowConfirm(false)}
+        />
       </div>
     </main>
   );

@@ -1,16 +1,15 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api.js';
 import Ticker from '../components/Ticker.jsx';
 import { IconHeart, IconSearch, Mascot, IconDrop, IconCheck } from '../components/Icons.jsx';
-import { fg, useRequests } from '../lib.js';
+import { useStats, useRequests } from '../hooks/index.js';
+import { fg } from '../lib.js';
 
 const ActiveRequests = lazy(() => import('../components/ActiveRequests.jsx'));
 
 export default function Home() {
   const { requests, error } = useRequests();
-  const [stats, setStats] = useState(null);
-  useEffect(() => { api.stats().then(setStats).catch(() => {}); }, []);
+  const { stats } = useStats();
   const urgent = requests?.find((r) => r.urgency === 'darurat');
 
   return (

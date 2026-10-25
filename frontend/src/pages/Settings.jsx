@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useCities } from '../hooks/index.js';
 
 export default function Settings() {
   const navigate = useNavigate();
   const { user, loading, updateProfile } = useAuth();
-  const [cities, setCities] = useState([]);
+  const { cities } = useCities();
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
   const [phone, setPhone] = useState('');
@@ -14,10 +15,6 @@ export default function Settings() {
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    api.cities().then(setCities).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (user) {

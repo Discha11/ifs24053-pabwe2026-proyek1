@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import ConfirmModal from '../components/ConfirmModal.jsx';
 import { fg, fmtDate } from '../lib.js';
 
 export default function Riwayat() {
@@ -8,6 +9,7 @@ export default function Riwayat() {
   const { user, loading, recordDonated } = useAuth();
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   if (loading) {
     return (
@@ -34,10 +36,12 @@ export default function Riwayat() {
     );
   }
 
-  async function handleRecord() {
-    if (!window.confirm('Catat bahwa Anda telah mendonorkan darah hari ini? Jeda donor 75 hari akan dihitung mulai hari ini.')) {
-      return;
-    }
+  const handleRecord = () => {
+    setShowConfirm(true);
+  };
+
+  const executeRecord = async () => {
+    setShowConfirm(false);
     setMsg('');
     setErr('');
     try {
@@ -46,7 +50,7 @@ export default function Riwayat() {
     } catch (e) {
       setErr(e.message || 'Gagal mencatat donor');
     }
-  }
+  };
 
   return (
     <main id="main-content" role="main">
@@ -111,6 +115,15 @@ export default function Riwayat() {
             </tbody>
           </table>
         </div>
+
+        <ConfirmModal
+          isOpen={showConfirm}
+          title="Konfirmasi Pencatatan Donor"
+          message="Catat bahwa Anda telah mendonorkan darah hari ini? Jeda donor 75 hari berikutnya akan dihitung mulai hari ini."
+          confirmText="Ya, Catat Donor"
+          onConfirm={executeRecord}
+          onCancel={() => setShowConfirm(false)}
+        />
       </div>
     </main>
   );

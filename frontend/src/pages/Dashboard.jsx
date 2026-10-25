@@ -1,74 +1,107 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { api } from '../api.js';
 import RequestList from '../components/RequestList.jsx';
 import DonorForm from '../components/DonorForm.jsx';
-import { fg, fmtDate, useRequests } from '../lib.js';
+import ConfirmModal from '../components/ConfirmModal.jsx';
+import { useStats, useDonors, useCities, useRequests } from '../hooks/index.js';
+import { fg, fmtDate } from '../lib.js';
 
 export default function Dashboard() {
-  const [stats, setStats] = useState(null);
-  const [donors, setDonors] = useState(null);
-  const [cities, setCities] = useState([]);
-  const [error, setError] = useState(false);
+  const { stats, reload: reloadStats } = useStats();
+  const { donors, reload: reloadDonors } = useDonors();
+  const { cities } = useCities();
   const { requests, error: reqError, reload: reloadRequests } = useRequests();
 
-  const loadDashboardData = useCallback(() => {
-    Promise.all([api.stats(), api.donors()])
-      .then(([statsData, donorsData]) => {
-        setStats(statsData);
-        setDonors(donorsData);
-        setError(false);
-      })
-      .catch(() => setError(true));
-  }, []);
+  const [error, setError] = useState(false);
+  const [actionMsg, setActionMsg] = useState('');
+  const [actionErr, setActionErr] = useState('');
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Lanjutkan',
+    isDanger: false,
+    onConfirm: () => {},
+  });
 
-  useEffect(() => {
-    loadDashboardData();
-    api.cities().then(setCities).catch(() => {});
-  }, [loadDashboardData]);
+  const loadDashboardData = useCallback(() => {
+    reloadStats();
+    reloadDonors();
+  }, [reloadStats, reloadDonors]);
 
   const refreshAll = () => {
     loadDashboardData();
     reloadRequests();
   };
 
+  const closeModal = () => setModalConfig((prev) => ({ ...prev, isOpen: false }));
+
   const handleMarkDonated = async (donor) => {
+    setActionMsg('');
+    setActionErr('');
     try {
       await api.markDonated(donor.id);
+      setActionMsg(`Aksi donor hari ini untuk ${donor.name} berhasil dicatat.`);
       loadDashboardData();
     } catch (err) {
-      alert(err.message || 'Gagal memperbarui status donor');
+      setActionErr(err.message || 'Gagal memperbarui status donor');
     }
   };
 
-  const handleDeleteDonor = async (donor) => {
-    if (window.confirm(`Hapus pendonor ${donor.name}?`)) {
-      try {
-        await api.deleteDonor(donor.id);
-        loadDashboardData();
-      } catch (err) {
-        alert(err.message || 'Gagal menghapus data pendonor');
-      }
-    }
+  const handleDeleteDonor = (donor) => {
+    setModalConfig({
+      isOpen: true,
+      title: 'Hapus Pendonor',
+      message: `Apakah Anda yakin ingin menghapus data pendonor ${donor.name}? Data yang dihapus tidak dapat dipulihkan.`,
+      confirmText: 'Ya, Hapus Data',
+      isDanger: true,
+      onConfirm: async () => {
+        closeModal();
+        setActionMsg('');
+        setActionErr('');
+        try {
+          await api.deleteDonor(donor.id);
+          setActionMsg(`Pendonor ${donor.name} berhasil dihapus.`);
+          loadDashboardData();
+        } catch (err) {
+          setActionErr(err.message || 'Gagal menghapus data pendonor');
+        }
+      },
+    });
   };
 
   const handleCloseRequest = async (request) => {
+    setActionMsg('');
+    setActionErr('');
     try {
       await api.closeRequest(request.id);
+      setActionMsg(`Permintaan darah untuk ${request.hospital} berhasil ditutup.`);
       refreshAll();
     } catch (err) {
-      alert(err.message || 'Gagal menutup permintaan');
+      setActionErr(err.message || 'Gagal menutup permintaan');
     }
   };
 
-  const handleDeleteRequest = async (request) => {
-    if (window.confirm('Hapus permintaan ini?')) {
-      try {
-        await api.deleteRequest(request.id);
-        refreshAll();
-      } catch (err) {
-        alert(err.message || 'Gagal menghapus permintaan');
-      }
-    }
+  const handleDeleteRequest = (request) => {
+    setModalConfig({
+      isOpen: true,
+      title: 'Hapus Permintaan Darah',
+      message: `Apakah Anda yakin ingin menghapus permintaan darah dari ${request.hospital}?`,
+      confirmText: 'Ya, Hapus Permintaan',
+      isDanger: true,
+      onConfirm: async () => {
+        closeModal();
+        setActionMsg('');
+        setActionErr('');
+        try {
+          await api.deleteRequest(request.id);
+          setActionMsg('Permintaan darah berhasil dihapus.');
+          refreshAll();
+        } catch (err) {
+          setActionErr(err.message || 'Gagal menghapus permintaan');
+        }
+      },
+    });
   };
 
   return (
@@ -78,6 +111,9 @@ export default function Dashboard() {
         <p className="sub" style={{ marginBottom: 20 }}>
           Panel administrasi untuk menutup permintaan selesai, menghapus data, dan mencatat riwayat donor warga.
         </p>
+
+        {actionMsg && <p className="msg ok" role="status">{actionMsg}</p>}
+        {actionErr && <p className="msg err" role="alert">{actionErr}</p>}
 
         {error && (
           <p className="msg err" role="alert">
@@ -164,6 +200,7 @@ export default function Dashboard() {
         )}
 
         <DonorForm cities={cities} onSaved={loadDashboardData} />
+        <ConfirmModal {...modalConfig} onCancel={closeModal} />
       </div>
     </main>
   );

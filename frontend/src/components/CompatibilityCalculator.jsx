@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { api } from '../api.js';
+import { useState } from 'react';
+import { useCities, useDonorMatch } from '../hooks/index.js';
 import { GOL, fg, fmtDate } from '../lib.js';
 
 export default function CompatibilityCalculator({
@@ -11,37 +11,8 @@ export default function CompatibilityCalculator({
 }) {
   const [selGol, setSelGol] = useState(initialGol);
   const [selCity, setSelCity] = useState(initialCity);
-  const [cities, setCities] = useState([]);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    api.cities().then(setCities).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    api
-      .match(selGol, selCity)
-      .then((res) => {
-        if (active) {
-          setData(res);
-          setError(false);
-        }
-      })
-      .catch(() => {
-        if (active) setError(true);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [selGol, selCity]);
+  const { cities } = useCities();
+  const { data, loading, error } = useDonorMatch(selGol, selCity);
 
   const results = data ? (Array.isArray(data) ? data : data.results || []) : [];
   const total = data ? (typeof data.total === 'number' ? data.total : results.length) : 0;

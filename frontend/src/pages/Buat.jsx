@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
+import { useCities } from '../hooks/index.js';
 import { GOL, fg } from '../lib.js';
 
 const getTodayDateString = () => new Date().toISOString().slice(0, 10);
@@ -10,7 +11,7 @@ const getTodayDateString = () => new Date().toISOString().slice(0, 10);
  */
 export default function Buat() {
   const navigate = useNavigate();
-  const [cities, setCities] = useState([]);
+  const { cities } = useCities();
   const [formData, setFormData] = useState({
     blood_type: 'A+',
     hospital: '',
@@ -24,18 +25,10 @@ export default function Buat() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    api
-      .cities()
-      .then((cityList) => {
-        setCities(cityList);
-        if (cityList.length > 0) {
-          setFormData((prev) => ({ ...prev, city: cityList[0] }));
-        }
-      })
-      .catch(() => {
-        setErrors(['Tidak bisa terhubung ke server back-end.']);
-      });
-  }, []);
+    if (cities.length > 0 && !formData.city) {
+      setFormData((prev) => ({ ...prev, city: cities[0] }));
+    }
+  }, [cities, formData.city]);
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));

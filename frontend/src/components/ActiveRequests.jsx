@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { useCities } from '../hooks/index.js';
 import { IconHeart } from './Icons.jsx';
 import FilterBar from './FilterBar.jsx';
 import RequestCard from './RequestCard.jsx';
@@ -12,15 +13,11 @@ export default function ActiveRequests({ requests = [], error = false }) {
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedUrgency, setSelectedUrgency] = useState('');
   const [priorityUrgency, setPriorityUrgency] = useState(true);
-  const [cities, setCities] = useState([]);
+  const { cities } = useCities();
   const [expandedMatchId, setExpandedMatchId] = useState(null);
   const [matchData, setMatchData] = useState({});
   const [matchLoading, setMatchLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('requests'); // 'requests' | 'calculator'
-
-  useEffect(() => {
-    api.cities().then(setCities).catch(() => {});
-  }, []);
 
   const handleToggleMatch = async (req) => {
     if (expandedMatchId === req.id) {

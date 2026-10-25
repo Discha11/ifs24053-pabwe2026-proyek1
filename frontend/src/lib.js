@@ -69,27 +69,4 @@ export function formatRequestTime(request) {
 }
 export const reqTime = formatRequestTime; // Alias backward-compatibility
 
-/**
- * Hook kustom untuk memuat dan menyinkronkan daftar permintaan darah dari API.
- * @returns {{ requests: Array<object>|null, error: boolean, reload: () => void }}
- */
-export function useRequests() {
-  const [requests, setRequests] = useState(null);
-  const [error, setError] = useState(false);
-
-  const reload = useCallback(() => {
-    api
-      .requests()
-      .then((data) => {
-        setRequests(data);
-        setError(false);
-      })
-      .catch(() => setError(true));
-  }, []);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
-
-  return { requests, error, reload };
-}
+export { useRequests } from './hooks/index.js';

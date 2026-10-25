@@ -29,6 +29,8 @@ class ErrorBoundary extends Component {
   }
 }
 
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+
 // Lazy load routes to eliminate unused JavaScript from the entry chunk
 const Cari = lazy(() => import('./pages/Cari.jsx'));
 const Permintaan = lazy(() => import('./pages/Permintaan.jsx'));
@@ -66,21 +68,77 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/cari" element={<Cari />} />
             <Route path="/permintaan" element={<Permintaan />} />
-            <Route path="/masuk" element={<Login />} />
-            <Route path="/auth/login" element={<Login />} />
-
-            {/* Form & Halaman Terproteksi (Lazy loaded) */}
             <Route path="/buat" element={<Buat />} />
             <Route path="/daftar" element={<Register />} />
             <Route path="/auth/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profil" element={<Profile />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/setting" element={<Settings />} />
-            <Route path="/pengaturan" element={<Settings />} />
-            <Route path="/riwayat" element={<Riwayat />} />
-            <Route path="/history" element={<Riwayat />} />
+            <Route path="/masuk" element={<Login />} />
+            <Route path="/auth/login" element={<Login />} />
+
+            {/* Halaman Terproteksi dengan Route Guard Eksplisit */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profil"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/setting"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pengaturan"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/riwayat"
+              element={
+                <ProtectedRoute>
+                  <Riwayat />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <Riwayat />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="*"

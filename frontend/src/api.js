@@ -118,12 +118,8 @@ async function request(path, options = {}) {
   try {
     res = await fetch(`${API_URL}/api${path}`, { ...options, headers });
   } catch (_netErr) {
-    // Only fallback on network failure for safe read queries to maintain site usability
-    if (!options.method || options.method === 'GET') {
-      const fallback = getFallbackData(path, options, token);
-      if (fallback !== null) return fallback;
-    }
-    throw new Error('Tidak dapat terhubung ke server back-end.');
+    // Terbuka dan transparan: lemparkan error jaringan agar UI dapat menampilkan status error server dengan jelas
+    throw new Error('Tidak dapat terhubung ke server back-end. Pastikan server aktif lalu muat ulang.');
   }
 
   if (res.status === 204) return null;
