@@ -28,7 +28,7 @@ export default function History() {
         <div className="wrap pg">
           <h1 className="ph">Riwayat Donor Darah</h1>
           <p className="sub">Silakan masuk ke akun Anda untuk melihat riwayat dan pencatatan donor darah.</p>
-          <div style={{ marginTop: 24 }}>
+          <div className="mt-24">
             <Link to="/masuk" className="b1">Masuk Sekarang</Link>
           </div>
         </div>
@@ -54,14 +54,14 @@ export default function History() {
 
   return (
     <main id="main-content" role="main">
-      <div className="wrap pg" style={{ maxWidth: '42rem' }}>
+      <div className="wrap pg box-w-42">
         <h1 className="ph">Riwayat Donor Darah</h1>
         <p className="sub">Catatan dan rekam jejak aksi donor darah Anda untuk menyelamatkan sesama di kawasan Danau Toba.</p>
 
         {msg && <p className="msg ok" role="status">{msg}</p>}
         {err && <p className="msg err" role="alert">{err}</p>}
 
-        <div className="stats dstats" style={{ margin: '20px 0' }}>
+        <div className="stats dstats mt-20 mb-20">
           <div>
             <b>{formatBloodType(user.blood_type)}</b>
             <span>Golongan Darah</span>
@@ -76,7 +76,7 @@ export default function History() {
           </div>
         </div>
 
-        <div style={{ marginBottom: 24 }}>
+        <div className="mb-24">
           <button type="button" className="go2" onClick={handleRecord}>
             🩸 Catat Aksi Donor Baru Hari Ini
           </button>
@@ -95,7 +95,7 @@ export default function History() {
             </thead>
             <tbody>
               {user.last_donated ? (
-                <tr>
+                <tr key={`history-${user.last_donated}`}>
                   <td>1</td>
                   <td>{formatDate(user.last_donated)}</td>
                   <td>{formatBloodType(user.blood_type)}</td>
@@ -107,7 +107,7 @@ export default function History() {
                 </tr>
               ) : (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0' }}>
+                  <td colSpan="4" className="empty-table-note">
                     Belum ada riwayat donor darah yang dicatat. Klik tombol di atas jika Anda telah mendonor hari ini.
                   </td>
                 </tr>

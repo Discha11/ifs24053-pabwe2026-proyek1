@@ -30,7 +30,7 @@ export default function CompatibilityCalculator({
         {subheading && <p className="sub">{subheading}</p>}
       </div>
 
-      <div className="ctl" style={{ marginTop: 20 }}>
+      <div className="ctl mt-20">
         <div className="chips" role="group" aria-label="Golongan darah pasien">
           {BLOOD_TYPES.map((bloodGroup) => (
             <button
@@ -58,13 +58,13 @@ export default function CompatibilityCalculator({
       </div>
 
       {error && (
-        <p className="msg err" role="alert" style={{ marginTop: 16 }}>
+        <p className="msg err mt-16" role="alert">
           Tidak bisa terhubung ke server back-end. Pastikan server aktif lalu muat ulang.
         </p>
       )}
 
       {loading && !data && (
-        <p className="nx" style={{ marginTop: 20 }}>
+        <p className="nx mt-20">
           Mencari pendonor kompatibel...
         </p>
       )}

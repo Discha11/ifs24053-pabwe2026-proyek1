@@ -42,7 +42,7 @@ export default function Profile() {
         <div className="wrap pg">
           <h1 className="ph">Profil Pendonor</h1>
           <p className="sub">Silakan masuk ke akun Anda untuk melihat profil dan kartu pendonor digital.</p>
-          <div style={{ marginTop: 24 }}>
+          <div className="mt-24">
             <Link to="/masuk" className="b1">Masuk Sekarang</Link>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function Profile() {
 
   return (
     <main id="main-content" role="main">
-      <div className="wrap pg" style={{ maxWidth: '42rem' }}>
+      <div className="wrap pg box-w-42">
         <div className="ph-row">
           <h1 className="ph">Profil Pendonor</h1>
           <button className="sbtn danger" onClick={logout}>Keluar (Logout)</button>
@@ -113,25 +113,25 @@ export default function Profile() {
         {/* Digital Donor Card */}
         <div className="donor-id-card">
           <div className="card-top-row">
-            <div className="blood-type-box" style={{ width: 68, height: 68 }}>
-              <span className="blood-text" style={{ fontSize: 26 }}>{formatBloodType(user.blood_type)}</span>
+            <div className="blood-type-box id-box-lg">
+              <span className="blood-text id-text-lg">{formatBloodType(user.blood_type)}</span>
               <span className="blood-sub">RBC</span>
             </div>
             <div className="card-hospital-meta">
               <span className="id-card-title">KARTU PENDONOR DIGITAL SADA</span>
-              <h2 className="hospital-name" style={{ fontSize: 22 }}>{user.name}</h2>
+              <h2 className="hospital-name hospital-name-lg">{user.name}</h2>
               <div className="hospital-loc">
                 <span>📍 Domisili: {user.city}</span> • <span>📱 {user.phone}</span>
               </div>
             </div>
             <div className="card-urgency-wrapper">
-              <span className={`bd ${user.ready ? 'ok' : 'tj'}`} style={{ fontSize: 13, padding: '6px 14px' }}>
+              <span className={`bd badge-status-lg ${user.ready ? 'ok' : 'tj'}`}>
                 {user.ready ? 'Siap Donor Hari Ini' : 'Masa Tunggu 75 Hari'}
               </span>
             </div>
           </div>
 
-          <div className="card-specs-box" style={{ margin: '16px 0' }}>
+          <div className="card-specs-box mt-16 mb-16">
             <div className="spec-item">
               <span className="spec-label">Terakhir Donor:</span>
               <strong className="spec-val">
@@ -146,11 +146,10 @@ export default function Profile() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div className="donor-action-row">
             <button
               type="button"
-              className="go2"
-              style={{ minHeight: 40, padding: '0 18px', fontSize: 13 }}
+              className="go2 donor-record-btn"
               onClick={handleRecordDonated}
             >
               🩸 Catat Donor Hari Ini
@@ -160,7 +159,7 @@ export default function Profile() {
 
         {/* Edit Profile Form */}
         <h2 className="sec">Perbarui Informasi Akun</h2>
-        <form className="fm" style={{ maxWidth: '100%' }} onSubmit={handleUpdate}>
+        <form className="fm w-full" onSubmit={handleUpdate}>
           <label>
             Nama Lengkap
             <input
@@ -173,11 +172,11 @@ export default function Profile() {
           <div className="two">
             <label>
               Alamat Email (Akun)
-              <input value={user.email} disabled style={{ opacity: 0.7 }} />
+              <input value={user.email} disabled className="opacity-70" />
             </label>
             <label>
               Golongan Darah
-              <input value={formatBloodType(user.blood_type)} disabled style={{ opacity: 0.7 }} />
+              <input value={formatBloodType(user.blood_type)} disabled className="opacity-70" />
             </label>
           </div>
 
@@ -201,7 +200,7 @@ export default function Profile() {
             </label>
           </div>
 
-          <button className="sbtn" disabled={busy} style={{ width: 'fit-content' }}>
+          <button className="sbtn btn-fit" disabled={busy}>
             {busy ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
         </form>

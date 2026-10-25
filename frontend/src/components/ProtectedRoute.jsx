@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <main id="main-content" role="main" className="wrap pg" style={{ minHeight: '60vh' }}>
+      <main id="main-content" role="main" className="wrap pg min-h-60">
         <h1 className="ph">Memeriksa Autentikasi...</h1>
         <p className="nx">Mohon tunggu sebentar...</p>
       </main>

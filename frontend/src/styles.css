@@ -150,3 +150,45 @@
 /* Digital Donor ID Card */
 .donor-id-card{background:var(--surface);border:2px solid var(--line);border-radius:24px;padding:26px;box-shadow:var(--shadow-md);margin-bottom:28px;position:relative}
 .id-card-title{display:block;font:800 11px/1.2 var(--head);letter-spacing:.08em;color:var(--red);text-transform:uppercase;margin-bottom:4px}
+
+/* Accessible Modal Dialog Styles */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);display:grid;place-items:center;z-index:9999;padding:16px}
+.modal-card{background:var(--surface,#FFFFFF);color:var(--text,#14181F);border-radius:20px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 25px -5px rgba(0,0,0,0.2),0 10px 10px -5px rgba(0,0,0,0.1);border:1px solid var(--line,#E2E8F0)}
+.modal-title{margin:0 0 8px;font-size:1.2rem;font-family:var(--head,Outfit,sans-serif);font-weight:800}
+.modal-description{margin:0 0 24px;font-size:14px;color:var(--muted,#64748B);line-height:1.5}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px}
+.modal-btn-cancel{padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+.modal-btn-confirm{padding:8px 16px;border-radius:10px;cursor:pointer;font-weight:700;background:#059669;color:#FFFFFF;border:none}
+.modal-btn-confirm.danger{background:var(--red,#D42B2B)}
+
+/* Layout & Form Max-Width Utilities */
+.box-w-32{max-width:32rem}
+.box-w-36{max-width:36rem}
+.box-w-38{max-width:38rem}
+.box-w-42{max-width:42rem}
+.w-full{width:100%}
+.text-center{text-align:center}
+.mt-12{margin-top:12px}
+.mt-16{margin-top:16px}
+.mt-18{margin-top:18px}
+.mt-20{margin-top:20px}
+.mt-24{margin-top:24px}
+.mb-20{margin-bottom:20px}
+.mb-24{margin-bottom:24px}
+.py-32{padding-top:32px;padding-bottom:32px}
+.pb-0{padding-bottom:0}
+.min-h-60{min-height:60vh}
+.spacer-56{height:56px}
+.opacity-70{opacity:0.7}
+.auto-width{width:auto;margin:0}
+.auth-sub-link{text-align:center;margin:8px 0 0;font-size:14px;color:var(--muted)}
+.auth-sub-link a{font-weight:700;color:var(--red)}
+.checkbox-label{display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:12px}
+.empty-table-note{text-align:center;color:var(--muted);padding:24px 0}
+.donor-action-row{display:flex;gap:10px;flex-wrap:wrap}
+.donor-record-btn{min-height:40px;padding:0 18px;font-size:13px}
+.id-box-lg{width:68px;height:68px}
+.id-text-lg{font-size:26px}
+.hospital-name-lg{font-size:22px}
+.badge-status-lg{font-size:13px;padding:6px 14px}
+.btn-fit{width:fit-content}

@@ -72,8 +72,8 @@ export default function DonorForm({ cities = [], onSaved }) {
 
       {errors.length > 0 && (
         <ul className="errs" role="alert">
-          {errors.map((errorMsg, index) => (
-            <li key={index}>{errorMsg}</li>
+          {errors.map((errorMsg) => (
+            <li key={errorMsg}>{errorMsg}</li>
           ))}
         </ul>
       )}

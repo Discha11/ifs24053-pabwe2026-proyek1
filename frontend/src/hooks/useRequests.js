@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
 
 /**
  * Custom hook untuk mengambil, menyinkronkan, dan mengelola daftar permintaan darah dari API.
+ * Menggunakan AbortController untuk menjamin cleanup konsisten pada setiap reload dan unmount.
+ *
  * @returns {{
  *   requests: Array<object>|null,
  *   loading: boolean,
@@ -17,53 +19,72 @@ export function useRequests() {
   const [requests, setRequests] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const abortControllerRef = useRef(null);
 
   const fetchRequests = useCallback(() => {
-    let isMounted = true;
+    // Batalkan pemanggilan aktif sebelumnya jika ada reload berturut-turut
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     setLoading(true);
 
     api
-      .requests()
+      .requests({ signal: controller.signal })
       .then((requestList) => {
-        if (isMounted) {
+        if (!controller.signal.aborted) {
           setRequests(requestList);
           setError(false);
         }
       })
-      .catch(() => {
-        if (isMounted) setError(true);
+      .catch((err) => {
+        if (err.name !== 'AbortError' && !controller.signal.aborted) {
+          setError(true);
+        }
       })
       .finally(() => {
-        if (isMounted) setLoading(false);
+        if (abortControllerRef.current === controller) {
+          setLoading(false);
+        }
       });
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   useEffect(() => {
-    const cleanup = fetchRequests();
-    return cleanup;
+    fetchRequests();
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchRequests]);
 
-  const createRequest = useCallback(async (data) => {
-    const res = await api.createRequest(data);
-    fetchRequests();
-    return res;
-  }, [fetchRequests]);
+  const createRequest = useCallback(
+    async (data) => {
+      const res = await api.createRequest(data);
+      fetchRequests();
+      return res;
+    },
+    [fetchRequests]
+  );
 
-  const closeRequest = useCallback(async (id) => {
-    const res = await api.closeRequest(id);
-    fetchRequests();
-    return res;
-  }, [fetchRequests]);
+  const closeRequest = useCallback(
+    async (id) => {
+      const res = await api.closeRequest(id);
+      fetchRequests();
+      return res;
+    },
+    [fetchRequests]
+  );
 
-  const deleteRequest = useCallback(async (id) => {
-    const res = await api.deleteRequest(id);
-    fetchRequests();
-    return res;
-  }, [fetchRequests]);
+  const deleteRequest = useCallback(
+    async (id) => {
+      const res = await api.deleteRequest(id);
+      fetchRequests();
+      return res;
+    },
+    [fetchRequests]
+  );
 
   return {
     requests,

@@ -58,7 +58,7 @@ export default function App() {
         <Nav urgent={urgent} />
         <Suspense
           fallback={
-            <main id="main-content" role="main" className="wrap pg" style={{ minHeight: '60vh' }}>
+            <main id="main-content" role="main" className="wrap pg min-h-60">
               <h1 className="ph">Memuat...</h1>
               <p className="nx">Menyiapkan halaman...</p>
             </main>

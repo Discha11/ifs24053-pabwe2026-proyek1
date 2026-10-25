@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Komponen Modal Dialog Konfirmasi Pengganti window.confirm bawaan browser.
- * Aksesibel dengan dukungan WAI-ARIA Dialog (Modal), Focus Trap, dan tombol Escape.
+ * Aksesibel dengan dukungan WAI-ARIA Dialog (Modal), Focus Trap, tombol Escape, dan styling CSS class konsisten.
  *
  * @param {{
  *   isOpen: boolean,
@@ -34,10 +34,8 @@ export default function ConfirmModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    // Simpan elemen yang sebelumnya aktif untuk dikembalikan saat modal ditutup
     previouslyFocusedElementRef.current = document.activeElement;
 
-    // Fokuskan tombol batal terlebih dahulu untuk keamanan aksi destruktif
     const focusTimeout = setTimeout(() => {
       cancelButtonRef.current?.focus();
     }, 50);
@@ -90,92 +88,32 @@ export default function ConfirmModal({
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
       aria-describedby="confirm-modal-description"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(4px)',
-        display: 'grid',
-        placeItems: 'center',
-        zIndex: 9999,
-        padding: 16,
-      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancel();
       }}
     >
-      <div
-        ref={modalCardRef}
-        className="modal-card"
-        style={{
-          background: 'var(--surface, #FFFFFF)',
-          color: 'var(--text, #14181F)',
-          borderRadius: 20,
-          padding: 24,
-          maxWidth: 420,
-          width: '100%',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
-          border: '1px solid var(--line, #E2E8F0)',
-        }}
-      >
-        <h3
-          id="confirm-modal-title"
-          style={{
-            margin: '0 0 8px',
-            fontSize: '1.2rem',
-            fontFamily: 'var(--head, Outfit, sans-serif)',
-            fontWeight: 800,
-          }}
-        >
+      <div ref={modalCardRef} className="modal-card">
+        <h3 id="confirm-modal-title" className="modal-title">
           {title}
         </h3>
-        <p
-          id="confirm-modal-description"
-          style={{
-            margin: '0 0 24px',
-            fontSize: 14,
-            color: 'var(--muted, #64748B)',
-            lineHeight: 1.5,
-          }}
-        >
+        <p id="confirm-modal-description" className="modal-description">
           {message}
         </p>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 10,
-          }}
-        >
+        <div className="modal-actions">
           <button
             ref={cancelButtonRef}
             type="button"
-            className="sbtn"
+            className="sbtn modal-btn-cancel"
             onClick={onCancel}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 10,
-              cursor: 'pointer',
-              fontWeight: 600,
-            }}
           >
             {cancelText}
           </button>
           <button
             ref={confirmButtonRef}
             type="button"
-            className={`sbtn ${isDanger ? 'danger' : ''}`}
+            className={`sbtn modal-btn-confirm ${isDanger ? 'danger' : ''}`}
             onClick={onConfirm}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 10,
-              cursor: 'pointer',
-              fontWeight: 700,
-              background: isDanger ? 'var(--red, #D42B2B)' : '#059669',
-              color: '#FFFFFF',
-              border: 'none',
-            }}
           >
             {confirmText}
           </button>

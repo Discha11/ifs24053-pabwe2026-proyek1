@@ -1,12 +1,17 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { api, getToken, setToken } from '../api.js';
+import { api, getToken, setToken, clearToken } from '../api.js';
 
 const AuthContext = createContext(null);
+const USER_SESSION_KEY = 'sada_user_session';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('sada_user');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = sessionStorage.getItem(USER_SESSION_KEY) || localStorage.getItem('sada_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (_err) {
+      return null;
+    }
   });
   const [loading, setLoading] = useState(false);
 
@@ -14,6 +19,7 @@ export function AuthProvider({ children }) {
     const token = getToken();
     if (!token) {
       setUser(null);
+      sessionStorage.removeItem(USER_SESSION_KEY);
       localStorage.removeItem('sada_user');
       return;
     }
@@ -22,14 +28,16 @@ export function AuthProvider({ children }) {
       const data = await api.me();
       if (data?.user) {
         setUser(data.user);
-        localStorage.setItem('sada_user', JSON.stringify(data.user));
+        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(data.user));
+        localStorage.removeItem('sada_user'); // Bersihkan storage permanen
       } else {
         setUser(null);
+        sessionStorage.removeItem(USER_SESSION_KEY);
         localStorage.removeItem('sada_user');
       }
     } catch (_err) {
-      // Clear invalid session
       setUser(null);
+      sessionStorage.removeItem(USER_SESSION_KEY);
       localStorage.removeItem('sada_user');
     } finally {
       setLoading(false);
@@ -51,7 +59,8 @@ export function AuthProvider({ children }) {
       }
       setToken(res.token);
       setUser(res.user);
-      localStorage.setItem('sada_user', JSON.stringify(res.user));
+      sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
+      localStorage.removeItem('sada_user');
       return res.user;
     } finally {
       setLoading(false);
@@ -67,7 +76,8 @@ export function AuthProvider({ children }) {
       }
       setToken(res.token);
       setUser(res.user);
-      localStorage.setItem('sada_user', JSON.stringify(res.user));
+      sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
+      localStorage.removeItem('sada_user');
       return res.user;
     } finally {
       setLoading(false);
@@ -75,8 +85,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    setToken(null);
+    clearToken();
     setUser(null);
+    sessionStorage.removeItem(USER_SESSION_KEY);
     localStorage.removeItem('sada_user');
   };
 
@@ -84,7 +95,8 @@ export function AuthProvider({ children }) {
     const res = await api.updateProfile(formData);
     const updated = res?.user || { ...user, ...formData };
     setUser(updated);
-    localStorage.setItem('sada_user', JSON.stringify(updated));
+    sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updated));
+    localStorage.removeItem('sada_user');
     return updated;
   };
 
@@ -92,7 +104,8 @@ export function AuthProvider({ children }) {
     const today = new Date().toISOString().slice(0, 10);
     const updated = { ...user, last_donated: today, ready: false };
     setUser(updated);
-    localStorage.setItem('sada_user', JSON.stringify(updated));
+    sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updated));
+    localStorage.removeItem('sada_user');
     try {
       await api.recordUserDonated();
     } catch (_err) {

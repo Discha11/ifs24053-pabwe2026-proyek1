@@ -37,7 +37,7 @@ export default function Home() {
       </div>
       <div className="ulos" aria-hidden="true" />
       <Ticker requests={requests} />
-      <Suspense fallback={<div className="wrap pg" style={{ textAlign: 'center', padding: '32px 0' }}><p className="nx">Memuat daftar permintaan darah...</p></div>}>
+      <Suspense fallback={<div className="wrap pg text-center py-32"><p className="nx">Memuat daftar permintaan darah...</p></div>}>
         <ActiveRequests requests={requests} error={error} />
       </Suspense>
     </main>

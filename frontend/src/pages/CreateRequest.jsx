@@ -88,8 +88,8 @@ export default function CreateRequest() {
         <form className="fm" onSubmit={handleSubmit} noValidate>
           {errors.length > 0 && (
             <ul className="errs" role="alert">
-              {errors.map((msg, i) => (
-                <li key={i}>{msg}</li>
+              {errors.map((msg) => (
+                <li key={msg}>{msg}</li>
               ))}
             </ul>
           )}

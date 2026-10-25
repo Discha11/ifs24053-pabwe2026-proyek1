@@ -13,12 +13,15 @@ export default function Ticker({ requests }) {
   return (
     <div className="tick" aria-label="Permintaan darah terbaru">
       <div className="track">
-        {displayItems.map((requestItem, index) => (
-          <span key={index}>
-            <em>{URGENCY_CONFIG[requestItem?.urgency]?.[0] || 'Permintaan'}</em>
-            Butuh {formatBloodType(requestItem?.blood_type || 'A+')} · {requestItem?.hospital || 'RS Terdekat'} · {formatRequestTime(requestItem)}
-          </span>
-        ))}
+        {displayItems.map((requestItem, index) => {
+          const itemKey = `ticker-${index < requests.length ? 'orig' : 'dup'}-${requestItem?.id || requestItem?.hospital || index}`;
+          return (
+            <span key={itemKey}>
+              <em>{URGENCY_CONFIG[requestItem?.urgency]?.[0] || 'Permintaan'}</em>
+              Butuh {formatBloodType(requestItem?.blood_type || 'A+')} · {requestItem?.hospital || 'RS Terdekat'} · {formatRequestTime(requestItem)}
+            </span>
+          );
+        })}
       </div>
     </div>
   );

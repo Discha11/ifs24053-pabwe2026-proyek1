@@ -99,17 +99,17 @@ export default function Register() {
 
   return (
     <main id="main-content" role="main">
-      <div className="wrap pg" style={{ maxWidth: '36rem' }}>
+      <div className="wrap pg box-w-36">
         <h1 className="ph">Daftar Akun Pendonor</h1>
         <p className="sub">
           Daftarkan diri Anda sebagai bagian dari Sahabat Aksi Donor Anda di kawasan Danau Toba.
         </p>
 
-        <form className="fm" style={{ maxWidth: '100%' }} onSubmit={handleSubmit}>
+        <form className="fm w-full" onSubmit={handleSubmit}>
           {errors.length > 0 && (
             <ul className="errs" role="alert">
-              {errors.map((msg, i) => (
-                <li key={i}>{msg}</li>
+              {errors.map((msg) => (
+                <li key={msg}>{msg}</li>
               ))}
             </ul>
           )}
@@ -193,8 +193,8 @@ export default function Register() {
             {busy ? 'Mendaftarkan Akun...' : 'Daftar Sekarang'}
           </button>
 
-          <p style={{ textAlign: 'center', margin: '8px 0 0', fontSize: 14, color: 'var(--muted)' }}>
-            Sudah memiliki akun? <Link to="/masuk" style={{ fontWeight: 700, color: 'var(--red)' }}>Masuk di Sini</Link>
+          <p className="auth-sub-link">
+            Sudah memiliki akun? <Link to="/masuk">Masuk di Sini</Link>
           </p>
         </form>
       </div>

@@ -74,7 +74,7 @@ export default function Settings() {
         <div className="wrap pg">
           <h1 className="ph">Pengaturan Akun</h1>
           <p className="sub">Silakan masuk ke akun Anda untuk mengelola preferensi profil dan notifikasi.</p>
-          <div style={{ marginTop: 24 }}>
+          <div className="mt-24">
             <Link to="/masuk" className="b1">Masuk Sekarang</Link>
           </div>
         </div>
@@ -84,14 +84,14 @@ export default function Settings() {
 
   return (
     <main id="main-content" role="main">
-      <div className="wrap pg" style={{ maxWidth: '38rem' }}>
+      <div className="wrap pg box-w-38">
         <h1 className="ph">Pengaturan Akun</h1>
         <p className="sub">Kelola preferensi akun, kontak darurat, dan informasi profil Anda.</p>
 
         {msg && <p className="msg ok" role="status">{msg}</p>}
         {err && <p className="msg err" role="alert">{err}</p>}
 
-        <form className="fm" style={{ maxWidth: '100%' }} onSubmit={handleSave}>
+        <form className="fm w-full" onSubmit={handleSave}>
           <label>
             Nama Lengkap
             <input
@@ -110,7 +110,7 @@ export default function Settings() {
               name="email"
               value={user?.email || ''}
               disabled
-              style={{ opacity: 0.7 }}
+              className="opacity-70"
             />
           </label>
 
@@ -136,18 +136,18 @@ export default function Settings() {
             </label>
           </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginTop: 12 }}>
+          <label className="checkbox-label">
             <input
               type="checkbox"
               id="notif"
               checked={notif}
               onChange={(e) => setNotif(e.target.checked)}
-              style={{ width: 'auto', margin: 0 }}
+              className="auto-width"
             />
             <span>Terima pemberitahuan WhatsApp saat ada kebutuhan darah darurat yang cocok</span>
           </label>
 
-          <button className="go2" disabled={busy} type="submit" style={{ marginTop: 18 }}>
+          <button className="go2 mt-18" disabled={busy} type="submit">
             {busy ? 'Menyimpan...' : 'Simpan Pengaturan'}
           </button>
         </form>

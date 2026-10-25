@@ -45,15 +45,15 @@ export default function Login() {
 
   return (
     <main id="main-content" role="main">
-      <div className="wrap pg" style={{ maxWidth: '32rem' }}>
+      <div className="wrap pg box-w-32">
         <h1 className="ph">Masuk Akun</h1>
         <p className="sub">Masuk untuk melihat kartu pendonor digital dan mengelola status donor Anda.</p>
 
-        <form className="fm" style={{ maxWidth: '100%' }} onSubmit={handleSubmit}>
+        <form className="fm w-full" onSubmit={handleSubmit}>
           {errors.length > 0 && (
             <ul className="errs" role="alert">
-              {errors.map((msg, i) => (
-                <li key={i}>{msg}</li>
+              {errors.map((msg) => (
+                <li key={msg}>{msg}</li>
               ))}
             </ul>
           )}
@@ -86,12 +86,12 @@ export default function Login() {
             />
           </label>
 
-          <button className="go2" disabled={busy}>
+          <button id="btn-submit" className="go2" disabled={busy}>
             {busy ? 'Memeriksa Kredensial...' : 'Masuk Sekarang'}
           </button>
 
-          <p style={{ textAlign: 'center', margin: '8px 0 0', fontSize: 14, color: 'var(--muted)' }}>
-            Belum punya akun? <Link to="/daftar" style={{ fontWeight: 700, color: 'var(--red)' }}>Daftar Jadi Pendonor</Link>
+          <p className="auth-sub-link">
+            Belum punya akun? <Link to="/daftar">Daftar Jadi Pendonor</Link>
           </p>
         </form>
       </div>

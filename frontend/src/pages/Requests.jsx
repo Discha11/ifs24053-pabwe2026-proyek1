@@ -8,13 +8,13 @@ export default function Requests() {
 
   return (
     <main id="main-content" role="main">
-      <div className="wrap pg" style={{ paddingBottom: 0 }}>
+      <div className="wrap pg pb-0">
         <h1 className="ph">Daftar Permintaan Darah</h1>
         <p className="sub">
           Daftar kebutuhan darah mendesak dan terjadwal di rumah sakit dan puskesmas kawasan Danau Toba.
         </p>
         {state?.created && (
-          <p className="msg ok" role="status" style={{ marginBottom: 20 }}>
+          <p className="msg ok mb-20" role="status">
             Permintaan darah berhasil dibuat dan langsung terdaftar aktif.
           </p>
         )}

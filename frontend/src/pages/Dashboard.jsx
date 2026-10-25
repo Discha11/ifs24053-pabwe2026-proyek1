@@ -106,7 +106,7 @@ export default function Dashboard() {
     <main id="main-content" role="main">
       <div className="wrap pg">
         <h1 className="ph">Kelola Data (Panel Admin)</h1>
-        <p className="sub" style={{ marginBottom: 20 }}>
+        <p className="sub mb-20">
           Panel administrasi untuk menutup permintaan selesai, menghapus data, dan mencatat riwayat donor warga.
         </p>
 
