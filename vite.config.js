@@ -1,5 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
@@ -37,6 +42,12 @@ export default defineConfig({
       }
     }
   ],
+  resolve: {
+    alias: {
+      react: path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom')
+    }
+  },
   server: {
     port: 5173,
     host: true,
@@ -44,6 +55,15 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    globals: true
+    globals: true,
+    include: ['src/**/*.{test,spec}.{js,jsx}'],
+    exclude: ['**/node_modules/**', '**/dist/**', 'frontend/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      reportsDirectory: './coverage',
+      include: ['src/**'],
+      exclude: ['src/main.jsx', 'src/**/*.test.{js,jsx}', 'frontend/**']
+    }
   }
 });

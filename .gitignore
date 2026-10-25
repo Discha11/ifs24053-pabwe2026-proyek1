@@ -1,6 +1,14 @@
 node_modules/
 dist/
+coverage/
+.trivy-cache/
+trivy-results.sarif
+latest-app.zip
 *.db
 *.db-wal
 *.db-shm
 .env
+.env.*
+!.env.example
+frontend/
+
