@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import Svg from '../components/Svg.jsx';
 import Ticker from '../components/Ticker.jsx';
-import ActiveRequests from '../components/ActiveRequests.jsx';
 import { iconHeart, iconSearch, mascot, iconDrop, iconCheck } from '../assets/svg.js';
 import { fg, useRequests } from '../lib.js';
+
+const ActiveRequests = lazy(() => import('../components/ActiveRequests.jsx'));
 
 export default function Home() {
   const { requests, error } = useRequests();
@@ -38,7 +39,9 @@ export default function Home() {
       </div>
       <div className="ulos" aria-hidden="true" />
       <Ticker requests={requests} />
-      <ActiveRequests requests={requests} error={error} />
+      <Suspense fallback={<div className="wrap pg" style={{ textAlign: 'center', padding: '32px 0' }}><p className="nx">Memuat daftar permintaan darah...</p></div>}>
+        <ActiveRequests requests={requests} error={error} />
+      </Suspense>
     </main>
   );
 }

@@ -4,11 +4,11 @@ import { api } from './api.js';
 import { AuthProvider } from './context/AuthContext.jsx';
 import Nav from './components/Nav.jsx';
 import Home from './pages/Home.jsx';
-import Cari from './pages/Cari.jsx';
-import Permintaan from './pages/Permintaan.jsx';
-import Login from './pages/Login.jsx';
 
-// Lazy load heavy admin & user dashboard components to reduce unused JavaScript
+// Lazy load routes to eliminate unused JavaScript from the entry chunk
+const Cari = lazy(() => import('./pages/Cari.jsx'));
+const Permintaan = lazy(() => import('./pages/Permintaan.jsx'));
+const Login = lazy(() => import('./pages/Login.jsx'));
 const Buat = lazy(() => import('./pages/Buat.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const Register = lazy(() => import('./pages/Register.jsx'));
