@@ -32,6 +32,7 @@ export default function Profile() {
     return (
       <main>
         <div className="wrap pg">
+          <h1 className="ph">Profil Pendonor</h1>
           <p className="nx">Memuat data profil pendonor...</p>
         </div>
       </main>

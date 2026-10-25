@@ -14,6 +14,7 @@ export default function Riwayat() {
     return (
       <main>
         <div className="wrap pg">
+          <h1 className="ph">Riwayat Donor Darah</h1>
           <p className="nx">Memuat riwayat donor...</p>
         </div>
       </main>
