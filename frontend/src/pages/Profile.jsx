@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { fg, fmtDate } from '../lib.js';
@@ -15,7 +15,6 @@ export default function Profile() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
-
   useEffect(() => {
     api.cities().then(setCities).catch(() => {});
   }, []);
@@ -28,12 +27,26 @@ export default function Profile() {
     }
   }, [user]);
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <main id="main-content" role="main">
         <div className="wrap pg">
           <h1 className="ph">Profil Pendonor</h1>
           <p className="nx">Memuat data profil pendonor...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main id="main-content" role="main">
+        <div className="wrap pg">
+          <h1 className="ph">Profil Pendonor</h1>
+          <p className="sub">Silakan masuk ke akun Anda untuk melihat profil dan kartu pendonor digital.</p>
+          <div style={{ marginTop: 24 }}>
+            <Link to="/masuk" className="b1">Masuk Sekarang</Link>
+          </div>
         </div>
       </main>
     );

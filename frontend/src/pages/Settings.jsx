@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -14,7 +14,6 @@ export default function Settings() {
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-
 
   useEffect(() => {
     api.cities().then(setCities).catch(() => {});
@@ -41,6 +40,31 @@ export default function Settings() {
     } finally {
       setBusy(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <main id="main-content" role="main">
+        <div className="wrap pg">
+          <h1 className="ph">Pengaturan Akun</h1>
+          <p className="nx">Memuat data pengaturan...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main id="main-content" role="main">
+        <div className="wrap pg">
+          <h1 className="ph">Pengaturan Akun</h1>
+          <p className="sub">Silakan masuk ke akun Anda untuk mengelola preferensi profil dan notifikasi.</p>
+          <div style={{ marginTop: 24 }}>
+            <Link to="/masuk" className="b1">Masuk Sekarang</Link>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (

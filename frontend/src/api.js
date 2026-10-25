@@ -1,6 +1,6 @@
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-export const getToken = () => localStorage.getItem('sada_token') || 'sada_demo_token';
+export const getToken = () => localStorage.getItem('sada_token') || '';
 export const setToken = (t) => {
   if (t) localStorage.setItem('sada_token', t);
   else localStorage.removeItem('sada_token');
@@ -32,59 +32,68 @@ const MOCK_STATS = {
 
 const MOCK_CITIES = ['Balige', 'Laguboti', 'Parapat', 'Pangururan', 'Medan', 'Tarutung', 'Porsea'];
 
-function getFallbackData(path, options = {}) {
+function getFallbackData(path, options = {}, token = '') {
   if (path === '/stats') return MOCK_STATS;
   if (path === '/cities') return MOCK_CITIES;
   if (path.startsWith('/donors/match')) {
-    const results = MOCK_DONORS.map(d => ({
+    const results = MOCK_DONORS.map((d) => ({
       ...d,
       same_type: true,
-      wa_url: `https://wa.me/${d.phone}`
+      wa_url: `https://wa.me/${d.phone}`,
     }));
     return {
       blood_type: 'A+',
       total: results.length,
-      ready_count: results.filter(d => d.ready).length,
-      results
+      ready_count: results.filter((d) => d.ready).length,
+      compatible_types: ['A+', 'A-', 'O+', 'O-'],
+      results,
     };
   }
   if (path === '/donors') return MOCK_DONORS;
   if (path === '/requests') return MOCK_REQUESTS;
+
+  if (path === '/auth/me') {
+    // If not authenticated, do not forge a logged in user!
+    if (!token) return { user: null };
+    const savedUser = localStorage.getItem('sada_user');
+    return {
+      user: savedUser
+        ? JSON.parse(savedUser)
+        : {
+            id: 1,
+            name: 'Discha Hutasoit',
+            email: 'discha@gmail.com',
+            blood_type: 'O+',
+            city: 'Balige',
+            phone: '081234567890',
+            ready: true,
+            last_donated: '2026-07-01',
+            eligible_date: '2026-09-14',
+            days_until_eligible: 0,
+          },
+    };
+  }
+
   if (path === '/auth/login' || path === '/auth/register') {
     const body = options.body ? JSON.parse(options.body) : {};
     return {
-      token: 'sada_mock_token',
+      token: 'sada_demo_token',
       user: {
         id: 1,
         name: body.name || (body.email ? body.email.split('@')[0] : 'Discha Hutasoit'),
         email: body.email || 'discha@gmail.com',
-        blood_type: 'O+',
-        city: 'Balige',
-        phone: '081234567890',
+        blood_type: body.blood_type || 'O+',
+        city: body.city || 'Balige',
+        phone: body.phone || '081234567890',
         ready: true,
         last_donated: '2026-07-01',
         eligible_date: '2026-09-14',
         days_until_eligible: 0,
-      }
+      },
     };
   }
-  if (path === '/auth/me') {
-    return {
-      user: {
-        id: 1,
-        name: 'Discha Hutasoit',
-        email: 'discha@gmail.com',
-        blood_type: 'O+',
-        city: 'Balige',
-        phone: '081234567890',
-        ready: true,
-        last_donated: '2026-07-01',
-        eligible_date: '2026-09-14',
-        days_until_eligible: 0,
-      }
-    };
-  }
-  return { ok: true };
+
+  return null;
 }
 
 async function request(path, options = {}) {
@@ -99,24 +108,36 @@ async function request(path, options = {}) {
   const isProduction = isBrowser && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
   const isLocalApi = API_URL.includes('localhost') || API_URL.includes('127.0.0.1');
 
+  // Static preview on Vercel without separate backend container
   if (isProduction && isLocalApi) {
-    // Avoid console net::ERR_CONNECTION_REFUSED on Vercel deployment
-    return Promise.resolve(getFallbackData(path, options));
+    const fallback = getFallbackData(path, options, token);
+    if (fallback !== null) return fallback;
   }
 
+  let res;
   try {
-    const res = await fetch(`${API_URL}/api${path}`, { ...options, headers });
-    if (res.status === 204) return null;
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      const err = new Error(data.error || 'Permintaan gagal');
-      err.details = data.details || [];
-      throw err;
+    res = await fetch(`${API_URL}/api${path}`, { ...options, headers });
+  } catch (_netErr) {
+    // Only fallback on network failure for safe read queries to maintain site usability
+    if (!options.method || options.method === 'GET') {
+      const fallback = getFallbackData(path, options, token);
+      if (fallback !== null) return fallback;
     }
-    return data;
-  } catch (_err) {
-    return getFallbackData(path, options);
+    throw new Error('Tidak dapat terhubung ke server back-end.');
   }
+
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    // Propagate backend errors clearly without masking
+    const err = new Error(data.error || `Permintaan gagal (status ${res.status})`);
+    err.status = res.status;
+    err.details = data.details || [];
+    throw err;
+  }
+
+  return data;
 }
 
 const send = (method, body) => ({ method, body: body ? JSON.stringify(body) : undefined });

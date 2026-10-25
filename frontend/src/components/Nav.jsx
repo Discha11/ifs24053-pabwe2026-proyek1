@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import Svg from './Svg.jsx';
-import { logo } from '../assets/svg.js';
+import { Logo } from './Icons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const LINKS = [['/', 'Beranda'], ['/cari', 'Cari Pendonor'], ['/permintaan', 'Permintaan'], ['/dashboard', 'Kelola Data']];
@@ -55,7 +54,7 @@ export default function Nav({ urgent }) {
       <nav id="nav" ref={navRef} data-s={compact ? 'compact' : 'open'}
         aria-label="Navigasi utama">
         <div className="row">
-          <Link className="logo" to="/" aria-label="SADA, ke beranda"><Svg markup={logo} /></Link>
+          <Link className="logo" to="/" aria-label="SADA, ke beranda"><Logo /></Link>
           <ul className="nl" id="nl">
             {LINKS.map(([to, label]) => (
               <li key={to}>
