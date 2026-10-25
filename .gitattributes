@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+Jenkinsfile text eol=lf
+sonar-project.properties text eol=lf
+
