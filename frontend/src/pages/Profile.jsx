@@ -5,6 +5,7 @@ import ConfirmModal from '../components/ConfirmModal.jsx';
 import { useCities } from '../hooks/index.js';
 import { formatBloodType, formatDate } from '../lib.js';
 import { validationSchemas } from '../utils/validation.js';
+import { getErrorMessage } from '../utils/errors.js';
 
 export default function Profile() {
   const { user, loading, logout, updateProfile, recordDonated } = useAuth();
@@ -19,8 +20,8 @@ export default function Profile() {
 
   useEffect(() => {
     if (user) {
-      setEditName(user.name);
-      setEditCity(user.city);
+      setEditName(user.name || '');
+      setEditCity(user.city || '');
       setEditLastDonated(user.last_donated || '');
     }
   }, [user]);
@@ -74,7 +75,7 @@ export default function Profile() {
       });
       setMsg('Profil berhasil diperbarui.');
     } catch (error) {
-      setErr(error.message);
+      setErr(getErrorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -92,7 +93,7 @@ export default function Profile() {
       await recordDonated();
       setMsg('Donor hari ini berhasil dicatat! Terima kasih atas aksi kemanusiaan Anda.');
     } catch (error) {
-      setErr(error.message);
+      setErr(getErrorMessage(error));
     }
   };
 

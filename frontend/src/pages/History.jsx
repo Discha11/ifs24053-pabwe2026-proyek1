@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import { formatBloodType, formatDate } from '../lib.js';
+import { getErrorMessage } from '../utils/errors.js';
 
 export default function History() {
   const { user, loading, recordDonated } = useAuth();
@@ -47,7 +48,7 @@ export default function History() {
       await recordDonated();
       setMsg('Donor hari ini berhasil dicatat!');
     } catch (e) {
-      setErr(e.message || 'Gagal mencatat donor');
+      setErr(getErrorMessage(e));
     }
   };
 

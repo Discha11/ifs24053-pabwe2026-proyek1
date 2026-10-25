@@ -134,10 +134,4 @@ ConfirmModal.propTypes = {
   onCancel: PropTypes.func.isRequired,
 };
 
-ConfirmModal.defaultProps = {
-  title: 'Konfirmasi Aksi',
-  confirmText: 'Lanjutkan',
-  cancelText: 'Batal',
-  isDanger: false,
-};
 

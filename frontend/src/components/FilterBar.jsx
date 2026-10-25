@@ -2,18 +2,18 @@ import PropTypes from 'prop-types';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 
 export default function FilterBar({
-  search,
-  onSearchChange,
-  selectedGol,
-  onGolChange,
-  selectedCity,
-  onCityChange,
-  selectedUrgency,
-  onUrgencyChange,
-  priorityUrgency,
-  onPriorityChange,
+  search = '',
+  onSearchChange = () => {},
+  selectedGol = '',
+  onGolChange = () => {},
+  selectedCity = '',
+  onCityChange = () => {},
+  selectedUrgency = '',
+  onUrgencyChange = () => {},
+  priorityUrgency = true,
+  onPriorityChange = () => {},
   cities = [],
-  onReset,
+  onReset = () => {},
   totalFiltered = 0,
   totalRequests = 0,
 }) {
@@ -111,25 +111,20 @@ export default function FilterBar({
 }
 
 FilterBar.propTypes = {
-  search: PropTypes.string.isRequired,
-  onSearchChange: PropTypes.func.isRequired,
-  selectedGol: PropTypes.string.isRequired,
-  onGolChange: PropTypes.func.isRequired,
-  selectedCity: PropTypes.string.isRequired,
-  onCityChange: PropTypes.func.isRequired,
-  selectedUrgency: PropTypes.string.isRequired,
-  onUrgencyChange: PropTypes.func.isRequired,
-  priorityUrgency: PropTypes.bool.isRequired,
-  onPriorityChange: PropTypes.func.isRequired,
+  search: PropTypes.string,
+  onSearchChange: PropTypes.func,
+  selectedGol: PropTypes.string,
+  onGolChange: PropTypes.func,
+  selectedCity: PropTypes.string,
+  onCityChange: PropTypes.func,
+  selectedUrgency: PropTypes.string,
+  onUrgencyChange: PropTypes.func,
+  priorityUrgency: PropTypes.bool,
+  onPriorityChange: PropTypes.func,
   cities: PropTypes.arrayOf(PropTypes.string),
-  onReset: PropTypes.func.isRequired,
+  onReset: PropTypes.func,
   totalFiltered: PropTypes.number,
   totalRequests: PropTypes.number,
 };
 
-FilterBar.defaultProps = {
-  cities: [],
-  totalFiltered: 0,
-  totalRequests: 0,
-};
 

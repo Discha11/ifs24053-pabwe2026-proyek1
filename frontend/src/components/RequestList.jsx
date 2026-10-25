@@ -10,7 +10,12 @@ import { URGENCY_CONFIG, formatBloodType, formatRequestTime } from '../lib.js';
  *   onDelete?: (request: object) => void
  * }} props
  */
-export default function RequestList({ requests, error, onClose, onDelete }) {
+export default function RequestList({
+  requests = null,
+  error = false,
+  onClose = undefined,
+  onDelete = undefined,
+}) {
   if (error) {
     return (
       <p className="msg err" role="alert">
@@ -34,23 +39,23 @@ export default function RequestList({ requests, error, onClose, onDelete }) {
   return (
     <div className="request-items-list">
       {requests.map((requestItem) => {
-        const [urgencyLabel, urgencyClass] = URGENCY_CONFIG[requestItem.urgency] || ['Umum', 'tj'];
+        const [urgencyLabel, urgencyClass] = URGENCY_CONFIG[requestItem?.urgency] || ['Umum', 'tj'];
 
         return (
-          <article className="it" key={requestItem.id}>
-            <div className="gol">{formatBloodType(requestItem.blood_type)}</div>
+          <article className="it" key={requestItem?.id}>
+            <div className="gol">{formatBloodType(requestItem?.blood_type)}</div>
             <div className="t">
               <b>
-                {requestItem.hospital} · {requestItem.units} kantong
+                {requestItem?.hospital} · {requestItem?.units ?? 1} kantong
               </b>
               <small>
-                {requestItem.city} · {formatRequestTime(requestItem)}
+                {requestItem?.city} · {formatRequestTime(requestItem)}
               </small>
             </div>
             <span className={`bd ${urgencyClass}`}>{urgencyLabel}</span>
             <a
               className="wa"
-              href={requestItem.wa_url || `https://wa.me/${requestItem.contact_phone}`}
+              href={requestItem?.wa_url || `https://wa.me/${requestItem?.contact_phone}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -99,10 +104,4 @@ RequestList.propTypes = {
   onDelete: PropTypes.func,
 };
 
-RequestList.defaultProps = {
-  requests: null,
-  error: false,
-  onClose: undefined,
-  onDelete: undefined,
-};
 

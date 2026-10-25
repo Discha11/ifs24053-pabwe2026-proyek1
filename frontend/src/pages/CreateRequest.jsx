@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCities, useRequests } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 import { validationSchemas, sanitizePhone } from '../utils/validation.js';
+import { getErrorMessage } from '../utils/errors.js';
 
 const getTodayDateString = () => new Date().toISOString().slice(0, 10);
 
@@ -60,7 +61,7 @@ export default function CreateRequest() {
       });
       navigate('/permintaan', { state: { created: true } });
     } catch (err) {
-      setErrors(err.details?.length ? err.details : [err.message]);
+      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
     } finally {
       setSubmitting(false);
     }

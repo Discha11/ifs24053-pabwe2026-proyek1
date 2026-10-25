@@ -145,8 +145,4 @@ ActiveRequests.propTypes = {
   error: PropTypes.bool,
 };
 
-ActiveRequests.defaultProps = {
-  requests: [],
-  error: false,
-};
 

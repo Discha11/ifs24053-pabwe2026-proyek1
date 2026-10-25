@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 const LINKS = [['/', 'Beranda'], ['/cari', 'Cari Pendonor'], ['/permintaan', 'Permintaan'], ['/dashboard', 'Kelola Data']];
 
-export default function Nav({ urgent }) {
+export default function Nav({ urgent = 0 }) {
   const { user } = useAuth();
   const navRef = useRef(null);
   const dropRef = useRef(null);
@@ -64,7 +64,7 @@ export default function Nav({ urgent }) {
             <li>
               {user ? (
                 <NavLink to="/profil" className={({ isActive }) => (isActive ? 'on' : '')}>
-                  👤 {user.name.split(' ')[0]}
+                  👤 {user?.name ? user.name.split(' ')[0] : 'Akun'}
                 </NavLink>
               ) : (
                 <NavLink to="/masuk" className={({ isActive }) => (isActive ? 'on' : '')}>
@@ -80,7 +80,7 @@ export default function Nav({ urgent }) {
       <div id="drop" ref={dropRef} className={open ? 'show' : ''}>
         {LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
         {user ? (
-          <Link to="/profil">👤 Akun Saya ({user.name})</Link>
+          <Link to="/profil">👤 Akun Saya ({user?.name || 'Pendonor'})</Link>
         ) : (
           <Link to="/masuk">Masuk / Daftar Pendonor</Link>
         )}
@@ -94,7 +94,4 @@ Nav.propTypes = {
   urgent: PropTypes.number,
 };
 
-Nav.defaultProps = {
-  urgent: 0,
-};
 

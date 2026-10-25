@@ -23,16 +23,16 @@ export default function Home() {
             <Link className="b2" to="/permintaan"><IconSearch />Lihat Permintaan Darah</Link>
           </div>
           <div className="stats">
-            <div><b>{stats ? stats.donors : '–'}</b><span>Pendonor terdaftar</span></div>
-            <div><b>{stats ? stats.ready_today : '–'}</b><span>Siap donor hari ini</span></div>
-            <div><b>{stats ? stats.cities : '–'}</b><span>Kota terjangkau</span></div>
+            <div><b>{stats?.donors ?? '–'}</b><span>Pendonor terdaftar</span></div>
+            <div><b>{stats?.ready_today ?? '–'}</b><span>Siap donor hari ini</span></div>
+            <div><b>{stats?.cities ?? '–'}</b><span>Kota terjangkau</span></div>
           </div>
           <p className="note">Semua data di halaman ini adalah data contoh.</p>
         </div>
         <div className="stage">
           <div className="m" aria-hidden="true"><Mascot /></div>
-          <div className="fc a"><span className="ic" aria-hidden="true"><IconDrop /></span><div><small>Kebutuhan darurat</small><b>{urgent ? `Butuh donor ${formatBloodType(urgent.blood_type)}` : 'Tidak ada yang darurat'}</b></div></div>
-          <div className="fc b"><span className="ic" aria-hidden="true"><IconCheck /></span><div><small>Siap donor</small><b>{stats ? `${stats.ready_today} pendonor hari ini` : '…'}</b></div></div>
+          <div className="fc a"><span className="ic" aria-hidden="true"><IconDrop /></span><div><small>Kebutuhan darurat</small><b>{urgent?.blood_type ? `Butuh donor ${formatBloodType(urgent.blood_type)}` : 'Tidak ada yang darurat'}</b></div></div>
+          <div className="fc b"><span className="ic" aria-hidden="true"><IconCheck /></span><div><small>Siap donor</small><b>{stats?.ready_today ? `${stats.ready_today} pendonor hari ini` : '…'}</b></div></div>
         </div>
       </div>
       <div className="ulos" aria-hidden="true" />

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { validationSchemas } from '../utils/validation.js';
+import { getErrorMessage } from '../utils/errors.js';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function Login() {
       await login(email.trim(), password);
       navigate('/profil');
     } catch (err) {
-      setErrors(err.details?.length ? err.details : [err.message]);
+      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
     } finally {
       setBusy(false);
     }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCities } from '../hooks/index.js';
 import { validationSchemas, sanitizePhone } from '../utils/validation.js';
+import { getErrorMessage } from '../utils/errors.js';
 
 export default function Settings() {
   const { user, loading, updateProfile } = useAuth();
@@ -39,11 +40,11 @@ export default function Settings() {
       await updateProfile({
         name: name.trim(),
         city,
-        phone: phone ? phone.trim().replace(/[-\s]/g, '') : '',
+        phone: sanitizePhone(phone),
       });
       setMsg('Pengaturan akun berhasil disimpan.');
     } catch (e) {
-      setErr(e.message || 'Gagal menyimpan pengaturan');
+      setErr(getErrorMessage(e));
     } finally {
       setBusy(false);
     }

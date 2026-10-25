@@ -19,9 +19,4 @@ Match.propTypes = {
   subheading: PropTypes.string,
 };
 
-Match.defaultProps = {
-  heading: 'Cocokkan pendonor dengan permintaan',
-  subheading:
-    'Pilih golongan darah pasien. SADA menampilkan pendonor yang kompatibel, bukan hanya yang golongannya sama, lalu menandai siapa yang sudah boleh donor lagi.',
-};
 

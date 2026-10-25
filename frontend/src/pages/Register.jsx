@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCities } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
-import { validationSchemas } from '../utils/validation.js';
+import { validationSchemas, sanitizePhone } from '../utils/validation.js';
+import { getErrorMessage } from '../utils/errors.js';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -44,12 +45,12 @@ export default function Register() {
         ...formData,
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
-        phone: formData.phone.trim().replace(/[-\s]/g, ''),
+        phone: sanitizePhone(formData.phone),
         last_donated: formData.last_donated || null,
       });
       navigate('/profil');
     } catch (err) {
-      setErrors(err.details?.length ? err.details : [err.message]);
+      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
     } finally {
       setBusy(false);
     }

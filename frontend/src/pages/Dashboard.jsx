@@ -36,19 +36,19 @@ export default function Dashboard() {
         {stats && (
           <div className="stats dstats">
             <div>
-              <b>{stats.donors}</b>
+              <b>{stats?.donors ?? 0}</b>
               <span>Pendonor terdaftar</span>
             </div>
             <div>
-              <b>{stats.ready_today}</b>
+              <b>{stats?.ready_today ?? 0}</b>
               <span>Siap donor hari ini</span>
             </div>
             <div>
-              <b>{stats.open_requests}</b>
+              <b>{stats?.open_requests ?? 0}</b>
               <span>Permintaan terbuka</span>
             </div>
             <div>
-              <b>{stats.urgent_requests}</b>
+              <b>{stats?.urgent_requests ?? 0}</b>
               <span>Darurat</span>
             </div>
           </div>
@@ -80,14 +80,14 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {donors.map((donor) => (
-                  <tr key={donor.id}>
-                    <td>{donor.name}</td>
-                    <td>{formatBloodType(donor.blood_type)}</td>
-                    <td>{donor.city}</td>
-                    <td>{donor.phone_masked}</td>
+                  <tr key={donor?.id}>
+                    <td>{donor?.name}</td>
+                    <td>{formatBloodType(donor?.blood_type)}</td>
+                    <td>{donor?.city}</td>
+                    <td>{donor?.phone_masked}</td>
                     <td>
-                      <span className={`bd ${donor.ready ? 'ok' : 'tj'}`}>
-                        {donor.ready ? 'Siap donor' : `Boleh ${formatDate(donor.eligible_date)}`}
+                      <span className={`bd ${donor?.ready ? 'ok' : 'tj'}`}>
+                        {donor?.ready ? 'Siap donor' : `Boleh ${formatDate(donor?.eligible_date)}`}
                       </span>
                     </td>
                     <td className="acts">

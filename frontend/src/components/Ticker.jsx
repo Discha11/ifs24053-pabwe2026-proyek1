@@ -5,7 +5,7 @@ import { URGENCY_CONFIG, formatBloodType, formatRequestTime } from '../lib.js';
  * Komponen ticker teks berjalan untuk menampilkan highlight permintaan darah terbaru.
  * @param {{ requests: Array<object>|null }} props
  */
-export default function Ticker({ requests }) {
+export default function Ticker({ requests = null }) {
   if (!requests || requests.length === 0) return null;
 
   // Menggandakan item agar animasi infinite scroll berjalan tanpa jeda
@@ -39,7 +39,4 @@ Ticker.propTypes = {
   ),
 };
 
-Ticker.defaultProps = {
-  requests: null,
-};
 

@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import { useDonors } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 import { validationSchemas, sanitizePhone } from '../utils/validation.js';
+import { getErrorMessage } from '../utils/errors.js';
 
 /**
  * Komponen form pendaftaran pendonor baru pada panel kelola data admin.
  * @param {{ cities: string[], onSaved: () => void }} props
  */
-export default function DonorForm({ cities = [], onSaved }) {
+export default function DonorForm({ cities = [], onSaved = undefined }) {
   const { createDonor } = useDonors();
   const initialFormState = {
     name: '',
@@ -56,7 +57,7 @@ export default function DonorForm({ cities = [], onSaved }) {
       setFormData({ ...initialFormState, city: cities[0] || '' });
       if (onSaved) onSaved();
     } catch (err) {
-      setErrors(err.details?.length ? err.details : [err.message]);
+      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
     } finally {
       setSubmitting(false);
     }
@@ -159,8 +160,4 @@ DonorForm.propTypes = {
   onSaved: PropTypes.func,
 };
 
-DonorForm.defaultProps = {
-  cities: [],
-  onSaved: undefined,
-};
 

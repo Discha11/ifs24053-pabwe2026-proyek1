@@ -93,30 +93,30 @@ export default function CompatibilityCalculator({
 
           <div className="donor-grid-compact">
             {results.map((donor) => (
-              <article className="it" key={donor.id}>
-                <div className={`gol ${donor.ready ? '' : 'off'}`}>{formatBloodType(donor.blood_type)}</div>
+              <article className="it" key={donor?.id}>
+                <div className={`gol ${donor?.ready ? '' : 'off'}`}>{formatBloodType(donor?.blood_type)}</div>
                 <div className="t">
                   <b>
-                    {donor.name} · {donor.city}
+                    {donor?.name} · {donor?.city}
                   </b>
                   <small>
-                    {donor.same_type ? 'Golongan sama' : 'Kompatibel'} · {donor.phone_masked}
+                    {donor?.same_type ? 'Golongan sama' : 'Kompatibel'} · {donor?.phone_masked}
                   </small>
                 </div>
-                <span className={`bd ${donor.ready ? 'ok' : 'tj'}`}>
-                  {donor.ready ? 'Siap donor' : 'Belum boleh'}
+                <span className={`bd ${donor?.ready ? 'ok' : 'tj'}`}>
+                  {donor?.ready ? 'Siap donor' : 'Belum boleh'}
                 </span>
-                {donor.ready ? (
+                {donor?.ready ? (
                   <a
                     className="wa"
-                    href={donor.wa_url || `https://wa.me/${donor.phone}`}
+                    href={donor?.wa_url || `https://wa.me/${donor?.phone}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Hubungi WhatsApp
                   </a>
                 ) : (
-                  <span className="nx">Bisa donor {formatDate(donor.eligible_date)}</span>
+                  <span className="nx">Bisa donor {formatDate(donor?.eligible_date)}</span>
                 )}
               </article>
             ))}
@@ -135,11 +135,4 @@ CompatibilityCalculator.propTypes = {
   className: PropTypes.string,
 };
 
-CompatibilityCalculator.defaultProps = {
-  heading: 'Cek Kompatibilitas Golongan Darah',
-  subheading: 'Pilih golongan darah pasien untuk melihat siapa saja pendonor kompatibel yang sudah melewati jeda 75 hari donor terakhir.',
-  initialGol: 'A+',
-  initialCity: '',
-  className: '',
-};
 
