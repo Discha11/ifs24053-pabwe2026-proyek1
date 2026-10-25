@@ -25,7 +25,7 @@ export default function Login() {
   }
 
   return (
-    <main>
+    <main id="main-content" role="main">
       <div className="wrap pg" style={{ maxWidth: '32rem' }}>
         <h1 className="ph">Masuk Akun</h1>
         <p className="sub">Masuk untuk melihat kartu pendonor digital dan mengelola status donor Anda.</p>

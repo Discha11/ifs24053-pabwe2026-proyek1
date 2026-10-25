@@ -12,7 +12,7 @@ export default function Riwayat() {
 
   if (loading || !user) {
     return (
-      <main>
+      <main id="main-content" role="main">
         <div className="wrap pg">
           <h1 className="ph">Riwayat Donor Darah</h1>
           <p className="nx">Memuat riwayat donor...</p>
@@ -36,7 +36,7 @@ export default function Riwayat() {
   }
 
   return (
-    <main>
+    <main id="main-content" role="main">
       <div className="wrap pg" style={{ maxWidth: '42rem' }}>
         <h1 className="ph">Riwayat Donor Darah</h1>
         <p className="sub">Catatan dan rekam jejak aksi donor darah Anda untuk menyelamatkan sesama di kawasan Danau Toba.</p>

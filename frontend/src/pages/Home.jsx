@@ -15,7 +15,7 @@ export default function Home() {
   const urgent = requests?.find((r) => r.urgency === 'darurat');
 
   return (
-    <main>
+    <main id="main-content" role="main">
       <div className="wrap hero">
         <div>
           <h1>Butuh darah? <span className="grad">Cari pendonor terdekat.</span></h1>

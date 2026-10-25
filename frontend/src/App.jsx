@@ -1,9 +1,33 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Component, Suspense, lazy, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { api } from './api.js';
 import { AuthProvider } from './context/AuthContext.jsx';
 import Nav from './components/Nav.jsx';
 import Home from './pages/Home.jsx';
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <main id="main-content" role="main" className="wrap pg">
+          <h1 className="ph">SADA – Sahabat Aksi Donor Anda</h1>
+          <p className="sub">Silakan muat ulang halaman untuk melanjutkan.</p>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Lazy load routes to eliminate unused JavaScript from the entry chunk
 const Cari = lazy(() => import('./pages/Cari.jsx'));
@@ -27,47 +51,52 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <Nav urgent={urgent} />
-      <Suspense
-        fallback={
-          <main className="wrap pg" style={{ minHeight: '60vh' }}>
-            <h1 className="ph">Memuat...</h1>
-            <p className="nx">Menyiapkan halaman...</p>
-          </main>
-        }
-      >
-        <Routes>
-          {/* Halaman Publik (Statis - Instan) */}
-          <Route path="/" element={<Home />} />
-          <Route path="/cari" element={<Cari />} />
-          <Route path="/permintaan" element={<Permintaan />} />
-          <Route path="/masuk" element={<Login />} />
-          <Route path="/auth/login" element={<Login />} />
+      <ErrorBoundary>
+        <Nav urgent={urgent} />
+        <Suspense
+          fallback={
+            <main id="main-content" role="main" className="wrap pg" style={{ minHeight: '60vh' }}>
+              <h1 className="ph">Memuat...</h1>
+              <p className="nx">Menyiapkan halaman...</p>
+            </main>
+          }
+        >
+          <Routes>
+            {/* Halaman Publik (Statis - Instan) */}
+            <Route path="/" element={<Home />} />
+            <Route path="/cari" element={<Cari />} />
+            <Route path="/permintaan" element={<Permintaan />} />
+            <Route path="/masuk" element={<Login />} />
+            <Route path="/auth/login" element={<Login />} />
 
-          {/* Form & Halaman Terproteksi (Lazy loaded) */}
-          <Route path="/buat" element={<Buat />} />
-          <Route path="/daftar" element={<Register />} />
-          <Route path="/auth/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profil" element={<Profile />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/riwayat" element={<Riwayat />} />
+            {/* Form & Halaman Terproteksi (Lazy loaded) */}
+            <Route path="/buat" element={<Buat />} />
+            <Route path="/daftar" element={<Register />} />
+            <Route path="/auth/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profil" element={<Profile />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/setting" element={<Settings />} />
+            <Route path="/pengaturan" element={<Settings />} />
+            <Route path="/riwayat" element={<Riwayat />} />
+            <Route path="/history" element={<Riwayat />} />
 
-          <Route
-            path="*"
-            element={
-              <main className="wrap pg">
-                <h1 className="ph">Halaman tidak ditemukan</h1>
-                <p className="sub">Alamat yang kamu buka tidak ada. Kembali ke beranda lewat menu di atas.</p>
-              </main>
-            }
-          />
-        </Routes>
-      </Suspense>
-      <footer>
-        <div className="wrap">SADA · Sahabat Aksi Donor Anda. “Sada” berarti “satu” dalam bahasa Batak Toba.</div>
-      </footer>
+            <Route
+              path="*"
+              element={
+                <main id="main-content" role="main" className="wrap pg">
+                  <h1 className="ph">Halaman tidak ditemukan</h1>
+                  <p className="sub">Alamat yang kamu buka tidak ada. Kembali ke beranda lewat menu di atas.</p>
+                </main>
+              }
+            />
+          </Routes>
+        </Suspense>
+        <footer>
+          <div className="wrap">SADA · Sahabat Aksi Donor Anda. “Sada” berarti “satu” dalam bahasa Batak Toba.</div>
+        </footer>
+      </ErrorBoundary>
     </AuthProvider>
   );
 }

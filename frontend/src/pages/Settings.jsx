@@ -44,7 +44,7 @@ export default function Settings() {
   }
 
   return (
-    <main>
+    <main id="main-content" role="main">
       <div className="wrap pg" style={{ maxWidth: '38rem' }}>
         <h1 className="ph">Pengaturan Akun</h1>
         <p className="sub">Kelola preferensi akun, kontak darurat, dan informasi profil Anda.</p>

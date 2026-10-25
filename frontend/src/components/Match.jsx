@@ -30,24 +30,29 @@ export default function Match({ heading = 'Cocokkan pendonor dengan permintaan' 
         </select>
       </div>
       {error && <p className="msg err" role="alert">Tidak bisa terhubung ke server. Pastikan back-end berjalan, lalu muat ulang halaman.</p>}
-      {data && !error && (
-        <>
-          <p className="ringkas" aria-live="polite">
-            Permintaan {fg(sel)}{kota ? ` di ${kota}` : ''}: {data.total} pendonor cocok, {data.ready_count} siap donor.
-          </p>
-          {data.total === 0 && <p className="nx">Belum ada pendonor yang cocok di kota ini.</p>}
-          {data.results.map((d) => (
-            <article className="it" key={d.id}>
-              <div className={`gol${d.ready ? '' : ' off'}`}>{fg(d.blood_type)}</div>
-              <div className="t"><b>{d.name} · {d.city}</b><small>{d.same_type ? 'Golongan sama' : 'Kompatibel'} · {d.phone_masked}</small></div>
-              <span className={`bd ${d.ready ? 'ok' : 'tj'}`}>{d.ready ? 'Siap donor' : 'Belum boleh'}</span>
-              {d.ready
-                ? <a className="wa" href={d.wa_url} target="_blank" rel="noopener noreferrer">Hubungi lewat WhatsApp</a>
-                : <span className="nx">Bisa donor lagi {fmtDate(d.eligible_date)}</span>}
-            </article>
-          ))}
-        </>
-      )}
+      {data && !error && (() => {
+        const results = Array.isArray(data) ? data : (data.results || []);
+        const total = typeof data.total === 'number' ? data.total : results.length;
+        const ready_count = typeof data.ready_count === 'number' ? data.ready_count : results.filter(d => d.ready).length;
+        return (
+          <>
+            <p className="ringkas" aria-live="polite">
+              Permintaan {fg(sel)}{kota ? ` di ${kota}` : ''}: {total} pendonor cocok, {ready_count} siap donor.
+            </p>
+            {total === 0 && <p className="nx">Belum ada pendonor yang cocok di kota ini.</p>}
+            {results.map((d) => (
+              <article className="it" key={d.id}>
+                <div className={`gol${d.ready ? '' : ' off'}`}>{fg(d.blood_type)}</div>
+                <div className="t"><b>{d.name} · {d.city}</b><small>{d.same_type ? 'Golongan sama' : 'Kompatibel'} · {d.phone_masked}</small></div>
+                <span className={`bd ${d.ready ? 'ok' : 'tj'}`}>{d.ready ? 'Siap donor' : 'Belum boleh'}</span>
+                {d.ready
+                  ? <a className="wa" href={d.wa_url || `https://wa.me/${d.phone}`} target="_blank" rel="noopener noreferrer">Hubungi lewat WhatsApp</a>
+                  : <span className="nx">Bisa donor lagi {fmtDate(d.eligible_date)}</span>}
+              </article>
+            ))}
+          </>
+        );
+      })()}
     </div></section>
   );
 }

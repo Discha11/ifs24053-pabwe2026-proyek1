@@ -7,7 +7,7 @@ export default function Permintaan() {
   const { state } = useLocation();
 
   return (
-    <main>
+    <main id="main-content" role="main">
       <div className="wrap pg" style={{ paddingBottom: 0 }}>
         <h1 className="ph">Daftar Permintaan Darah</h1>
         <p className="sub">

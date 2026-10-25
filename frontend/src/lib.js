@@ -8,7 +8,15 @@ export const URGENCY = { darurat: ['Darurat', 'dr'], segera: ['Segera', 'sg'], t
 const todayMs = () => Date.parse(new Date().toISOString().slice(0, 10));
 
 export function fmtDate(iso) {
-  return new Date(iso + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  if (!iso) return '-';
+  try {
+    const s = String(iso).includes('T') ? String(iso) : `${iso}T00:00:00`;
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return String(iso);
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  } catch (_e) {
+    return String(iso);
+  }
 }
 
 export function reqTime(r) {

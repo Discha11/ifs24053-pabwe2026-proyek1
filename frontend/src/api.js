@@ -35,7 +35,19 @@ const MOCK_CITIES = ['Balige', 'Laguboti', 'Parapat', 'Pangururan', 'Medan', 'Ta
 function getFallbackData(path, options = {}) {
   if (path === '/stats') return MOCK_STATS;
   if (path === '/cities') return MOCK_CITIES;
-  if (path.startsWith('/donors/match')) return MOCK_DONORS;
+  if (path.startsWith('/donors/match')) {
+    const results = MOCK_DONORS.map(d => ({
+      ...d,
+      same_type: true,
+      wa_url: `https://wa.me/${d.phone}`
+    }));
+    return {
+      blood_type: 'A+',
+      total: results.length,
+      ready_count: results.filter(d => d.ready).length,
+      results
+    };
+  }
   if (path === '/donors') return MOCK_DONORS;
   if (path === '/requests') return MOCK_REQUESTS;
   if (path === '/auth/login' || path === '/auth/register') {

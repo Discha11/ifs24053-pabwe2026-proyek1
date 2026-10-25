@@ -30,7 +30,7 @@ export default function Profile() {
 
   if (loading || !user) {
     return (
-      <main>
+      <main id="main-content" role="main">
         <div className="wrap pg">
           <h1 className="ph">Profil Pendonor</h1>
           <p className="nx">Memuat data profil pendonor...</p>
@@ -73,7 +73,7 @@ export default function Profile() {
   }
 
   return (
-    <main>
+    <main id="main-content" role="main">
       <div className="wrap pg" style={{ maxWidth: '42rem' }}>
         <div className="ph-row">
           <h1 className="ph">Profil Pendonor</h1>

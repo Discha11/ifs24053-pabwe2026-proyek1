@@ -47,7 +47,7 @@ export default function Register() {
   }
 
   return (
-    <main>
+    <main id="main-content" role="main">
       <div className="wrap pg" style={{ maxWidth: '36rem' }}>
         <h1 className="ph">Daftar Akun Pendonor</h1>
         <p className="sub">

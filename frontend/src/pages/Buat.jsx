@@ -26,7 +26,7 @@ export default function Buat() {
   }
 
   return (
-    <main><div className="wrap pg">
+    <main id="main-content" role="main"><div className="wrap pg">
       <h1 className="ph">Buat permintaan darah</h1>
       <p className="sub">Isi data pasien dan kontak WhatsApp yang bisa dihubungi pendonor.</p>
       <form className="fm" onSubmit={submit}>
