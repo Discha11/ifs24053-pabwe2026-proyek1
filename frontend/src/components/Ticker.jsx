@@ -1,15 +1,23 @@
+import React from 'react';
 import { URGENCY, fg, reqTime } from '../lib.js';
 
+/**
+ * Komponen ticker teks berjalan untuk menampilkan highlight permintaan darah terbaru.
+ * @param {{ requests: Array<object>|null }} props
+ */
 export default function Ticker({ requests }) {
   if (!requests || requests.length === 0) return null;
-  const items = [...requests, ...requests]; // digandakan agar animasi berulang mulus
+
+  // Menggandakan item agar animasi infinite scroll berjalan tanpa jeda
+  const displayItems = [...requests, ...requests];
+
   return (
     <div className="tick" aria-label="Permintaan darah terbaru">
       <div className="track">
-        {items.map((r, i) => (
-          <span key={i}>
-            <em>{URGENCY[r?.urgency]?.[0] || 'Permintaan'}</em>
-            Butuh {fg(r?.blood_type || 'A+')} · {r?.hospital || 'RS Terdekat'} · {reqTime(r)}
+        {displayItems.map((requestItem, index) => (
+          <span key={index}>
+            <em>{URGENCY[requestItem?.urgency]?.[0] || 'Permintaan'}</em>
+            Butuh {fg(requestItem?.blood_type || 'A+')} · {requestItem?.hospital || 'RS Terdekat'} · {reqTime(requestItem)}
           </span>
         ))}
       </div>
