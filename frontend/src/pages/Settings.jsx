@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCities } from '../hooks/index.js';
+import { isValidIndonesianPhone, sanitizePhone, hasMinLength } from '../utils/validation.js';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -28,15 +29,14 @@ export default function Settings() {
     setMsg('');
     setErr('');
 
-    if (name.trim().length < 3) {
+    if (!hasMinLength(name, 3)) {
       setErr('Nama lengkap minimal 3 karakter.');
       return;
     }
 
     if (phone) {
-      const cleanPhone = phone.trim().replace(/[-\s]/g, '');
-      const phoneRegex = /^(08|\+628|628)[0-9]{8,12}$/;
-      if (!phoneRegex.test(cleanPhone)) {
+      const cleanPhone = sanitizePhone(phone);
+      if (!isValidIndonesianPhone(cleanPhone)) {
         setErr('Nomor WhatsApp harus nomor Indonesia yang valid (contoh: 081234567890).');
         return;
       }

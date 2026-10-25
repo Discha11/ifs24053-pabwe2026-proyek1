@@ -1,6 +1,6 @@
 import Match from '../components/Match.jsx';
 
-export default function Cari() {
+export default function Search() {
   return (
     <main id="main-content" role="main">
       <div className="wrap pg" style={{ paddingBottom: 0 }}>

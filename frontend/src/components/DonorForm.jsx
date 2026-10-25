@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDonors } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
+import { isValidIndonesianPhone, sanitizePhone, hasMinLength } from '../utils/validation.js';
 
 /**
  * Komponen form pendaftaran pendonor baru pada panel kelola data admin.
@@ -35,11 +36,11 @@ export default function DonorForm({ cities = [], onSaved }) {
     setErrors([]);
 
     const validationErrors = [];
-    if (!formData.name.trim() || formData.name.trim().length < 2) {
+    if (!hasMinLength(formData.name, 2)) {
       validationErrors.push('Nama lengkap harus diisi minimal 2 karakter.');
     }
-    const cleanPhone = formData.phone.trim();
-    if (!/^(08|\+628|628)[0-9]{8,12}$/.test(cleanPhone)) {
+    const cleanPhone = sanitizePhone(formData.phone);
+    if (!isValidIndonesianPhone(cleanPhone)) {
       validationErrors.push('Nomor WhatsApp tidak valid. Masukkan nomor HP aktif (contoh: 081234567890).');
     }
 

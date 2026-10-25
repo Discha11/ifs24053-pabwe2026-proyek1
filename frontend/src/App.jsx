@@ -6,16 +6,16 @@ import Nav from './components/Nav.jsx';
 import Home from './pages/Home.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
-// Lazy load routes to eliminate unused JavaScript from the entry chunk
-const Cari = lazy(() => import('./pages/Cari.jsx'));
-const Permintaan = lazy(() => import('./pages/Permintaan.jsx'));
+// Lazy load routes dengan penamaan halaman konsisten dalam bahasa Inggris
+const Search = lazy(() => import('./pages/Search.jsx'));
+const Requests = lazy(() => import('./pages/Requests.jsx'));
 const Login = lazy(() => import('./pages/Login.jsx'));
-const Buat = lazy(() => import('./pages/Buat.jsx'));
+const CreateRequest = lazy(() => import('./pages/CreateRequest.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const Register = lazy(() => import('./pages/Register.jsx'));
 const Profile = lazy(() => import('./pages/Profile.jsx'));
 const Settings = lazy(() => import('./pages/Settings.jsx'));
-const Riwayat = lazy(() => import('./pages/Riwayat.jsx'));
+const History = lazy(() => import('./pages/History.jsx'));
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -67,12 +67,17 @@ export default function App() {
           <Routes>
             {/* Halaman Publik (Statis - Instan) */}
             <Route path="/" element={<Home />} />
-            <Route path="/cari" element={<Cari />} />
-            <Route path="/permintaan" element={<Permintaan />} />
-            <Route path="/buat" element={<Buat />} />
+            <Route path="/cari" element={<Search />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/permintaan" element={<Requests />} />
+            <Route path="/requests" element={<Requests />} />
+            <Route path="/buat" element={<CreateRequest />} />
+            <Route path="/create" element={<CreateRequest />} />
             <Route path="/daftar" element={<Register />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/masuk" element={<Login />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/auth/login" element={<Login />} />
 
             {/* Halaman Terproteksi dengan Route Guard Eksplisit */}
@@ -128,7 +133,7 @@ export default function App() {
               path="/riwayat"
               element={
                 <ProtectedRoute>
-                  <Riwayat />
+                  <History />
                 </ProtectedRoute>
               }
             />
@@ -136,7 +141,7 @@ export default function App() {
               path="/history"
               element={
                 <ProtectedRoute>
-                  <Riwayat />
+                  <History />
                 </ProtectedRoute>
               }
             />

@@ -16,7 +16,7 @@ export default function ActiveRequests({ requests = [], error = false }) {
   const { fetchMatch } = useDonorMatch();
   const [expandedMatchId, setExpandedMatchId] = useState(null);
   const [matchData, setMatchData] = useState({});
-  const [matchLoading, setMatchLoading] = useState(false);
+  const [loadingMatchId, setLoadingMatchId] = useState(null);
   const [activeTab, setActiveTab] = useState('requests'); // 'requests' | 'calculator'
 
   const handleToggleMatch = async (req) => {
@@ -26,14 +26,14 @@ export default function ActiveRequests({ requests = [], error = false }) {
     }
     setExpandedMatchId(req.id);
     if (!matchData[req.id]) {
-      setMatchLoading(true);
+      setLoadingMatchId(req.id);
       try {
         const res = await fetchMatch(req.blood_type, req.city);
         setMatchData((prev) => ({ ...prev, [req.id]: res }));
       } catch (e) {
         console.error(e);
       } finally {
-        setMatchLoading(false);
+        setLoadingMatchId(null);
       }
     }
   };
@@ -142,7 +142,7 @@ export default function ActiveRequests({ requests = [], error = false }) {
                   isExpanded={expandedMatchId === r.id}
                   onToggleMatch={handleToggleMatch}
                   matchInfo={matchData[r.id]}
-                  matchLoading={matchLoading}
+                  matchLoading={loadingMatchId === r.id}
                 />
               ))}
             </div>

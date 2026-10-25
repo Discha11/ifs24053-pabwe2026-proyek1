@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 import ActiveRequests from '../components/ActiveRequests.jsx';
 import { useRequests } from '../hooks/index.js';
 
-export default function Permintaan() {
+export default function Requests() {
   const { requests, error } = useRequests();
   const { state } = useLocation();
 

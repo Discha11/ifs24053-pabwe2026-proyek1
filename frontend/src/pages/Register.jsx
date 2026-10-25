@@ -3,6 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCities } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
+import {
+  isValidIndonesianPhone,
+  sanitizePhone,
+  isValidEmail,
+  hasMinLength,
+} from '../utils/validation.js';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -30,13 +36,11 @@ export default function Register() {
 
   function validateForm() {
     const errs = [];
-    const trimmedName = formData.name.trim();
-    if (trimmedName.length < 3) {
+    if (!hasMinLength(formData.name, 3)) {
       errs.push('Nama lengkap minimal 3 karakter.');
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
+    if (!isValidEmail(formData.email)) {
       errs.push('Format alamat email tidak valid.');
     }
 
@@ -52,9 +56,8 @@ export default function Register() {
       errs.push('Pilih kota domisili Anda.');
     }
 
-    const cleanPhone = formData.phone.trim().replace(/[-\s]/g, '');
-    const phoneRegex = /^(08|\+628|628)[0-9]{8,12}$/;
-    if (!phoneRegex.test(cleanPhone)) {
+    const cleanPhone = sanitizePhone(formData.phone);
+    if (!isValidIndonesianPhone(cleanPhone)) {
       errs.push('Nomor WhatsApp harus nomor Indonesia yang valid (contoh: 081234567890).');
     }
 

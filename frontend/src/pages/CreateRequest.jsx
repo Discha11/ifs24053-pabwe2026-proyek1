@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCities, useRequests } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
+import { isValidIndonesianPhone, sanitizePhone, hasMinLength } from '../utils/validation.js';
 
 const getTodayDateString = () => new Date().toISOString().slice(0, 10);
 
 /**
  * Halaman pembuatan permintaan kebutuhan darah baru.
  */
-export default function Buat() {
+export default function CreateRequest() {
   const navigate = useNavigate();
   const { cities } = useCities();
   const { createRequest } = useRequests();
@@ -39,15 +40,15 @@ export default function Buat() {
     setErrors([]);
 
     const validationErrors = [];
-    if (!formData.hospital.trim() || formData.hospital.trim().length < 3) {
+    if (!hasMinLength(formData.hospital, 3)) {
       validationErrors.push('Nama rumah sakit/faskes harus diisi minimal 3 karakter.');
     }
     const unitsNum = Number(formData.units);
     if (isNaN(unitsNum) || unitsNum < 1 || unitsNum > 20) {
       validationErrors.push('Jumlah kantong darah harus antara 1 sampai 20 kantong.');
     }
-    const cleanPhone = formData.contact_phone.trim();
-    if (!/^(08|\+628|628)[0-9]{8,12}$/.test(cleanPhone)) {
+    const cleanPhone = sanitizePhone(formData.contact_phone);
+    if (!isValidIndonesianPhone(cleanPhone)) {
       validationErrors.push('Nomor WhatsApp tidak valid. Masukkan nomor HP aktif (contoh: 081234567890).');
     }
     if (formData.urgency === 'terjadwal' && !formData.needed_date) {

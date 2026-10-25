@@ -1,17 +1,10 @@
 {
   "name": "ifs24053-pabwe2026-proyek1",
-  "module": "index.ts",
   "type": "module",
   "private": true,
   "scripts": {
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
     "preview": "npm --prefix frontend run preview"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^7"
   }
 }
