@@ -1,9 +1,21 @@
-import React, { Component, Suspense, lazy, useEffect, useState } from 'react';
+import { Component, Suspense, lazy, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { api } from './api.js';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { useStats } from './hooks/index.js';
 import Nav from './components/Nav.jsx';
 import Home from './pages/Home.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+
+// Lazy load routes to eliminate unused JavaScript from the entry chunk
+const Cari = lazy(() => import('./pages/Cari.jsx'));
+const Permintaan = lazy(() => import('./pages/Permintaan.jsx'));
+const Login = lazy(() => import('./pages/Login.jsx'));
+const Buat = lazy(() => import('./pages/Buat.jsx'));
+const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
+const Register = lazy(() => import('./pages/Register.jsx'));
+const Profile = lazy(() => import('./pages/Profile.jsx'));
+const Settings = lazy(() => import('./pages/Settings.jsx'));
+const Riwayat = lazy(() => import('./pages/Riwayat.jsx'));
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -29,27 +41,16 @@ class ErrorBoundary extends Component {
   }
 }
 
-import ProtectedRoute from './components/ProtectedRoute.jsx';
-
-// Lazy load routes to eliminate unused JavaScript from the entry chunk
-const Cari = lazy(() => import('./pages/Cari.jsx'));
-const Permintaan = lazy(() => import('./pages/Permintaan.jsx'));
-const Login = lazy(() => import('./pages/Login.jsx'));
-const Buat = lazy(() => import('./pages/Buat.jsx'));
-const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
-const Register = lazy(() => import('./pages/Register.jsx'));
-const Profile = lazy(() => import('./pages/Profile.jsx'));
-const Settings = lazy(() => import('./pages/Settings.jsx'));
-const Riwayat = lazy(() => import('./pages/Riwayat.jsx'));
-
 export default function App() {
   const { pathname } = useLocation();
-  const [urgent, setUrgent] = useState(0);
+  const { stats, reload: reloadStats } = useStats();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    api.stats().then((s) => setUrgent(s?.urgent_requests || 0)).catch(() => {});
-  }, [pathname]);
+    reloadStats();
+  }, [pathname, reloadStats]);
+
+  const urgent = stats?.urgent_requests || 0;
 
   return (
     <AuthProvider>

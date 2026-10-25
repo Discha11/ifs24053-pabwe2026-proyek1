@@ -1,5 +1,4 @@
-import React from 'react';
-import { URGENCY, fg, reqTime } from '../lib.js';
+import { URGENCY_CONFIG, formatBloodType, formatRequestTime } from '../lib.js';
 
 /**
  * Komponen ticker teks berjalan untuk menampilkan highlight permintaan darah terbaru.
@@ -16,8 +15,8 @@ export default function Ticker({ requests }) {
       <div className="track">
         {displayItems.map((requestItem, index) => (
           <span key={index}>
-            <em>{URGENCY[requestItem?.urgency]?.[0] || 'Permintaan'}</em>
-            Butuh {fg(requestItem?.blood_type || 'A+')} · {requestItem?.hospital || 'RS Terdekat'} · {reqTime(requestItem)}
+            <em>{URGENCY_CONFIG[requestItem?.urgency]?.[0] || 'Permintaan'}</em>
+            Butuh {formatBloodType(requestItem?.blood_type || 'A+')} · {requestItem?.hospital || 'RS Terdekat'} · {formatRequestTime(requestItem)}
           </span>
         ))}
       </div>

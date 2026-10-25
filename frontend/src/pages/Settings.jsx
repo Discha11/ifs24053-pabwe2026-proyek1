@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCities } from '../hooks/index.js';
 
@@ -28,9 +27,28 @@ export default function Settings() {
     e.preventDefault();
     setMsg('');
     setErr('');
+
+    if (name.trim().length < 3) {
+      setErr('Nama lengkap minimal 3 karakter.');
+      return;
+    }
+
+    if (phone) {
+      const cleanPhone = phone.trim().replace(/[-\s]/g, '');
+      const phoneRegex = /^(08|\+628|628)[0-9]{8,12}$/;
+      if (!phoneRegex.test(cleanPhone)) {
+        setErr('Nomor WhatsApp harus nomor Indonesia yang valid (contoh: 081234567890).');
+        return;
+      }
+    }
+
     setBusy(true);
     try {
-      await updateProfile({ name, city, phone });
+      await updateProfile({
+        name: name.trim(),
+        city,
+        phone: phone ? phone.trim().replace(/[-\s]/g, '') : '',
+      });
       setMsg('Pengaturan akun berhasil disimpan.');
     } catch (e) {
       setErr(e.message || 'Gagal menyimpan pengaturan');
@@ -111,7 +129,7 @@ export default function Settings() {
             <label>
               Kota Domisili
               <select id="city" name="city" value={city} onChange={(e) => setCity(e.target.value)}>
-                {cities.map((c) => (
+                {cities?.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>

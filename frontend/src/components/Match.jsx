@@ -1,4 +1,3 @@
-import React from 'react';
 import CompatibilityCalculator from './CompatibilityCalculator.jsx';
 
 export default function Match({

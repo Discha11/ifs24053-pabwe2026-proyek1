@@ -2,8 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api.js';
 
 /**
- * Custom hook untuk mengambil daftar pendonor terdaftar.
- * @returns {{ donors: Array<object>|null, loading: boolean, error: boolean, reload: () => void }}
+ * Custom hook untuk mengambil, menyinkronkan, dan mengelola data pendonor darah.
+ * @returns {{
+ *   donors: Array<object>|null,
+ *   loading: boolean,
+ *   error: boolean,
+ *   reload: () => void,
+ *   createDonor: (data: object) => Promise<any>,
+ *   markDonated: (id: number|string) => Promise<any>,
+ *   deleteDonor: (id: number|string) => Promise<any>
+ * }}
  */
 export function useDonors() {
   const [donors, setDonors] = useState(null);
@@ -39,5 +47,31 @@ export function useDonors() {
     return cleanup;
   }, [fetchDonors]);
 
-  return { donors, loading, error, reload: fetchDonors };
+  const createDonor = useCallback(async (data) => {
+    const res = await api.createDonor(data);
+    fetchDonors();
+    return res;
+  }, [fetchDonors]);
+
+  const markDonated = useCallback(async (id) => {
+    const res = await api.markDonated(id);
+    fetchDonors();
+    return res;
+  }, [fetchDonors]);
+
+  const deleteDonor = useCallback(async (id) => {
+    const res = await api.deleteDonor(id);
+    fetchDonors();
+    return res;
+  }, [fetchDonors]);
+
+  return {
+    donors,
+    loading,
+    error,
+    reload: fetchDonors,
+    createDonor,
+    markDonated,
+    deleteDonor,
+  };
 }

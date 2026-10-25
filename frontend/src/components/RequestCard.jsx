@@ -1,5 +1,4 @@
-import React from 'react';
-import { fg, fmtDate } from '../lib.js';
+import { formatBloodType, formatDate } from '../lib.js';
 
 export default function RequestCard({
   request: r,
@@ -23,7 +22,7 @@ export default function RequestCard({
       {/* Top Row: Blood Badge + Hospital Info + Urgency Pill */}
       <div className="card-top-row">
         <div className="blood-type-box">
-          <span className="blood-text">{fg(r.blood_type)}</span>
+          <span className="blood-text">{formatBloodType(r.blood_type)}</span>
           <span className="blood-sub">RBC</span>
         </div>
 
@@ -65,7 +64,7 @@ export default function RequestCard({
         <div className="spec-item">
           <span className="spec-label">Batas Waktu:</span>
           <strong className="spec-val">
-            {r.needed_date ? fmtDate(r.needed_date) : 'Hari Ini / Cito'}
+            {r.needed_date ? formatDate(r.needed_date) : 'Hari Ini / Cito'}
           </strong>
         </div>
       </div>
@@ -106,10 +105,10 @@ export default function RequestCard({
         <div className="donor-compat-drawer">
           <div className="drawer-header">
             <h4>
-              Pendonor Kompatibel untuk <span>{fg(r.blood_type)}</span> di <span>{r.city}</span>
+              Pendonor Kompatibel untuk <span>{formatBloodType(r.blood_type)}</span> di <span>{r.city}</span>
             </h4>
             <span className="compat-rule">
-              Menerima: {matchInfo?.compatible_types ? matchInfo.compatible_types.map(fg).join(', ') : '...'}
+              Menerima: {matchInfo?.compatible_types ? matchInfo.compatible_types.map(formatBloodType).join(', ') : '...'}
             </span>
           </div>
 
@@ -128,7 +127,7 @@ export default function RequestCard({
               {matchInfo.results.map((donor) => (
                 <div key={donor.id} className="drawer-donor-item">
                   <span className={`mini-blood-pill ${donor.ready ? 'ready' : 'not-ready'}`}>
-                    {fg(donor.blood_type)}
+                    {formatBloodType(donor.blood_type)}
                   </span>
                   <div className="mini-donor-info">
                     <strong>{donor.name}</strong>

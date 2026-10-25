@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api.js';
-import { useCities } from '../hooks/index.js';
+import { useCities, useDonorMatch } from '../hooks/index.js';
 import { IconHeart } from './Icons.jsx';
 import FilterBar from './FilterBar.jsx';
 import RequestCard from './RequestCard.jsx';
@@ -14,6 +13,7 @@ export default function ActiveRequests({ requests = [], error = false }) {
   const [selectedUrgency, setSelectedUrgency] = useState('');
   const [priorityUrgency, setPriorityUrgency] = useState(true);
   const { cities } = useCities();
+  const { fetchMatch } = useDonorMatch();
   const [expandedMatchId, setExpandedMatchId] = useState(null);
   const [matchData, setMatchData] = useState({});
   const [matchLoading, setMatchLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function ActiveRequests({ requests = [], error = false }) {
     if (!matchData[req.id]) {
       setMatchLoading(true);
       try {
-        const res = await api.match(req.blood_type, req.city);
+        const res = await fetchMatch(req.blood_type, req.city);
         setMatchData((prev) => ({ ...prev, [req.id]: res }));
       } catch (e) {
         console.error(e);

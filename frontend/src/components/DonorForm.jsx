@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { api } from '../api.js';
-import { GOL, fg } from '../lib.js';
+import { useDonors } from '../hooks/index.js';
+import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 
 /**
  * Komponen form pendaftaran pendonor baru pada panel kelola data admin.
  * @param {{ cities: string[], onSaved: () => void }} props
  */
 export default function DonorForm({ cities = [], onSaved }) {
+  const { createDonor } = useDonors();
   const initialFormState = {
     name: '',
     blood_type: 'A+',
@@ -20,7 +21,7 @@ export default function DonorForm({ cities = [], onSaved }) {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (cities.length > 0 && !formData.city) {
+    if (cities?.length > 0 && !formData.city) {
       setFormData((prev) => ({ ...prev, city: cities[0] }));
     }
   }, [cities, formData.city]);
@@ -32,11 +33,27 @@ export default function DonorForm({ cities = [], onSaved }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors([]);
-    setSubmitting(true);
 
+    const validationErrors = [];
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      validationErrors.push('Nama lengkap harus diisi minimal 2 karakter.');
+    }
+    const cleanPhone = formData.phone.trim();
+    if (!/^(08|\+628|628)[0-9]{8,12}$/.test(cleanPhone)) {
+      validationErrors.push('Nomor WhatsApp tidak valid. Masukkan nomor HP aktif (contoh: 081234567890).');
+    }
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      await api.createDonor({
+      await createDonor({
         ...formData,
+        name: formData.name.trim(),
+        phone: cleanPhone,
         last_donated: formData.last_donated || null,
       });
       setFormData({ ...initialFormState, city: cities[0] || '' });
@@ -81,9 +98,9 @@ export default function DonorForm({ cities = [], onSaved }) {
             value={formData.blood_type}
             onChange={handleChange('blood_type')}
           >
-            {GOL.map((bloodGroup) => (
+            {BLOOD_TYPES.map((bloodGroup) => (
               <option key={bloodGroup} value={bloodGroup}>
-                {fg(bloodGroup)}
+                {formatBloodType(bloodGroup)}
               </option>
             ))}
           </select>
@@ -99,7 +116,7 @@ export default function DonorForm({ cities = [], onSaved }) {
             value={formData.city}
             onChange={handleChange('city')}
           >
-            {cities.map((city) => (
+            {cities?.map((city) => (
               <option key={city} value={city}>
                 {city}
               </option>

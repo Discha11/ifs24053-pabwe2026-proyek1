@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import ActiveRequests from '../components/ActiveRequests.jsx';
-import { useRequests } from '../lib.js';
+import { useRequests } from '../hooks/index.js';
 
 export default function Permintaan() {
   const { requests, error } = useRequests();

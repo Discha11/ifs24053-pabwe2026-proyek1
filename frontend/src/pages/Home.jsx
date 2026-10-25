@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Ticker from '../components/Ticker.jsx';
 import { IconHeart, IconSearch, Mascot, IconDrop, IconCheck } from '../components/Icons.jsx';
 import { useStats, useRequests } from '../hooks/index.js';
-import { fg } from '../lib.js';
+import { formatBloodType } from '../lib.js';
 
 const ActiveRequests = lazy(() => import('../components/ActiveRequests.jsx'));
 
@@ -31,7 +31,7 @@ export default function Home() {
         </div>
         <div className="stage">
           <div className="m" aria-hidden="true"><Mascot /></div>
-          <div className="fc a"><span className="ic" aria-hidden="true"><IconDrop /></span><div><small>Kebutuhan darurat</small><b>{urgent ? `Butuh donor ${fg(urgent.blood_type)}` : 'Tidak ada yang darurat'}</b></div></div>
+          <div className="fc a"><span className="ic" aria-hidden="true"><IconDrop /></span><div><small>Kebutuhan darurat</small><b>{urgent ? `Butuh donor ${formatBloodType(urgent.blood_type)}` : 'Tidak ada yang darurat'}</b></div></div>
           <div className="fc b"><span className="ic" aria-hidden="true"><IconCheck /></span><div><small>Siap donor</small><b>{stats ? `${stats.ready_today} pendonor hari ini` : '…'}</b></div></div>
         </div>
       </div>

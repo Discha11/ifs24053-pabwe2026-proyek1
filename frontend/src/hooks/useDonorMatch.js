@@ -2,12 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api.js';
 
 /**
- * Custom hook untuk mencocokkan pendonor kompatibel berdasarkan golongan darah dan kota.
- * @param {string} bloodType
- * @param {string} city
- * @returns {{ data: object|null, loading: boolean, error: boolean, reload: () => void }}
+ * Custom hook untuk mencocokkan pendonor darah yang kompatibel secara medis.
+ * @param {string} [bloodType]
+ * @param {string} [city]
+ * @returns {{
+ *   data: object|null,
+ *   loading: boolean,
+ *   error: boolean,
+ *   reload: () => void,
+ *   fetchMatch: (bt: string, c?: string) => Promise<any>
+ * }}
  */
-export function useDonorMatch(bloodType, city = '') {
+export function useDonorMatch(bloodType = '', city = '') {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -42,5 +48,9 @@ export function useDonorMatch(bloodType, city = '') {
     return cleanup;
   }, [performMatch]);
 
-  return { data, loading, error, reload: performMatch };
+  const fetchMatch = useCallback(async (targetBloodType, targetCity = '') => {
+    return await api.match(targetBloodType, targetCity);
+  }, []);
+
+  return { data, loading, error, reload: performMatch, fetchMatch };
 }

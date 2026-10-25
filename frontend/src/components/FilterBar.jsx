@@ -1,5 +1,4 @@
-import React from 'react';
-import { GOL, fg } from '../lib.js';
+import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 
 export default function FilterBar({
   search,
@@ -48,9 +47,9 @@ export default function FilterBar({
           aria-label="Filter Golongan Darah"
         >
           <option value="">Semua Gol. Darah</option>
-          {GOL.map((g) => (
-            <option key={g} value={g}>
-              {fg(g)}
+          {BLOOD_TYPES.map((bloodGroup) => (
+            <option key={bloodGroup} value={bloodGroup}>
+              {formatBloodType(bloodGroup)}
             </option>
           ))}
         </select>

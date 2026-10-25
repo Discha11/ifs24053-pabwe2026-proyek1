@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../api.js';
-import { useCities } from '../hooks/index.js';
-import { GOL, fg } from '../lib.js';
+import { useCities, useRequests } from '../hooks/index.js';
+import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 
 const getTodayDateString = () => new Date().toISOString().slice(0, 10);
 
@@ -12,6 +11,7 @@ const getTodayDateString = () => new Date().toISOString().slice(0, 10);
 export default function Buat() {
   const navigate = useNavigate();
   const { cities } = useCities();
+  const { createRequest } = useRequests();
   const [formData, setFormData] = useState({
     blood_type: 'A+',
     hospital: '',
@@ -25,7 +25,7 @@ export default function Buat() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (cities.length > 0 && !formData.city) {
+    if (cities?.length > 0 && !formData.city) {
       setFormData((prev) => ({ ...prev, city: cities[0] }));
     }
   }, [cities, formData.city]);
@@ -36,13 +36,36 @@ export default function Buat() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setSubmitting(true);
     setErrors([]);
 
+    const validationErrors = [];
+    if (!formData.hospital.trim() || formData.hospital.trim().length < 3) {
+      validationErrors.push('Nama rumah sakit/faskes harus diisi minimal 3 karakter.');
+    }
+    const unitsNum = Number(formData.units);
+    if (isNaN(unitsNum) || unitsNum < 1 || unitsNum > 20) {
+      validationErrors.push('Jumlah kantong darah harus antara 1 sampai 20 kantong.');
+    }
+    const cleanPhone = formData.contact_phone.trim();
+    if (!/^(08|\+628|628)[0-9]{8,12}$/.test(cleanPhone)) {
+      validationErrors.push('Nomor WhatsApp tidak valid. Masukkan nomor HP aktif (contoh: 081234567890).');
+    }
+    if (formData.urgency === 'terjadwal' && !formData.needed_date) {
+      validationErrors.push('Tanggal dibutuhkan harus diisi untuk kebutuhan terjadwal.');
+    }
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      await api.createRequest({
+      await createRequest({
         ...formData,
-        units: Number(formData.units),
+        hospital: formData.hospital.trim(),
+        contact_phone: cleanPhone,
+        units: unitsNum,
         needed_date: formData.needed_date || null,
       });
       navigate('/permintaan', { state: { created: true } });
@@ -58,89 +81,92 @@ export default function Buat() {
       <div className="wrap pg">
         <h1 className="ph">Buat Permintaan Darah</h1>
         <p className="sub">
-          Isi data kebutuhan pasien dan kontak WhatsApp yang dapat dihubungi oleh pendonor.
+          Isi formulir kebutuhan darah untuk pasien di rumah sakit atau puskesmas wilayah Danau Toba.
         </p>
 
-        <form className="fm" onSubmit={handleSubmit}>
+        <form className="fm" onSubmit={handleSubmit} noValidate>
           {errors.length > 0 && (
             <ul className="errs" role="alert">
-              {errors.map((errorMsg, index) => (
-                <li key={index}>{errorMsg}</li>
+              {errors.map((msg, i) => (
+                <li key={i}>{msg}</li>
               ))}
             </ul>
           )}
 
           <div className="two">
             <label>
-              Golongan Darah
+              Golongan Darah Pasien
               <select
-                id="req-blood-type"
-                name="blood_type"
                 value={formData.blood_type}
                 onChange={handleChange('blood_type')}
+                id="blood_type"
+                name="blood_type"
               >
-                {GOL.map((bloodGroup) => (
+                {BLOOD_TYPES.map((bloodGroup) => (
                   <option key={bloodGroup} value={bloodGroup}>
-                    {fg(bloodGroup)}
+                    {formatBloodType(bloodGroup)}
                   </option>
                 ))}
               </select>
             </label>
+
             <label>
-              Jumlah Kantong
-              <input
-                id="req-units"
-                name="units"
-                type="number"
-                min="1"
-                max="20"
-                value={formData.units}
-                onChange={handleChange('units')}
-                required
-              />
+              Kota / Wilayah Faskes
+              <select
+                value={formData.city}
+                onChange={handleChange('city')}
+                id="city"
+                name="city"
+              >
+                {cities?.map((cityName) => (
+                  <option key={cityName} value={cityName}>
+                    {cityName}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
 
           <label>
-            Rumah Sakit atau Puskesmas
+            Nama Rumah Sakit / Puskesmas
             <input
-              id="req-hospital"
+              type="text"
+              id="hospital"
               name="hospital"
               value={formData.hospital}
               onChange={handleChange('hospital')}
-              maxLength={100}
-              placeholder="Mis. RS Balige"
+              placeholder="Contoh: RS HKBP Balige, RSUD Tarutung"
+              maxLength={120}
               required
             />
           </label>
 
           <div className="two">
             <label>
-              Kota / Kabupaten
-              <select
-                id="req-city"
-                name="city"
-                value={formData.city}
-                onChange={handleChange('city')}
-              >
-                {cities.map((city) => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </select>
+              Jumlah Kantong (Unit)
+              <input
+                type="number"
+                id="units"
+                name="units"
+                min={1}
+                max={20}
+                value={formData.units}
+                onChange={handleChange('units')}
+                required
+              />
             </label>
+
             <label>
               Tingkat Urgensi
               <select
-                id="req-urgency"
-                name="urgency"
                 value={formData.urgency}
                 onChange={handleChange('urgency')}
+                id="urgency"
+                name="urgency"
               >
-                <option value="darurat">Darurat (&lt; 6 Jam)</option>
-                <option value="segera">Segera (&lt; 24 Jam)</option>
-                <option value="terjadwal">Terjadwal</option>
+                <option value="darurat">Darurat (Butuh segera dalam beberapa jam)</option>
+                <option value="segera">Segera (Dibutuhkan hari ini)</option>
+                <option value="terjadwal">Terjadwal (Operasi / tindakan beberapa hari ke depan)</option>
               </select>
             </label>
           </div>
@@ -149,9 +175,9 @@ export default function Buat() {
             <label>
               Tanggal Dibutuhkan
               <input
-                id="req-needed-date"
-                name="needed_date"
                 type="date"
+                id="needed_date"
+                name="needed_date"
                 min={getTodayDateString()}
                 value={formData.needed_date}
                 onChange={handleChange('needed_date')}
@@ -161,21 +187,22 @@ export default function Buat() {
           )}
 
           <label>
-            Nomor WhatsApp yang Dapat Dihubungi
+            Nomor WhatsApp Narahubung Pasien
             <input
-              id="req-contact-phone"
-              name="contact_phone"
               type="tel"
+              id="contact_phone"
+              name="contact_phone"
               inputMode="tel"
               value={formData.contact_phone}
               onChange={handleChange('contact_phone')}
-              placeholder="081234567890"
+              placeholder="Contoh: 081234567890"
+              maxLength={20}
               required
             />
           </label>
 
           <button className="go2" disabled={submitting} type="submit">
-            {submitting ? 'Menyimpan Permintaan...' : 'Kirim Permintaan Darah'}
+            {submitting ? 'Memproses Permintaan...' : 'Kirim Permintaan Darah'}
           </button>
         </form>
       </div>

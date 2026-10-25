@@ -1,11 +1,10 @@
-import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 /**
  * Route guard component untuk melindungi rute yang memerlukan autentikasi.
  * Mengalihkan pengunjung yang belum login ke halaman /masuk dengan membawa state rute asal.
- * @param {{ children: React.ReactNode }} props
+ * @param {{ children: any }} props
  */
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();

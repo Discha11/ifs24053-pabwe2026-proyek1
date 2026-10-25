@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
-import { fg, fmtDate } from '../lib.js';
+import { formatBloodType, formatDate } from '../lib.js';
 
 export default function Riwayat() {
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ export default function Riwayat() {
 
         <div className="stats dstats" style={{ margin: '20px 0' }}>
           <div>
-            <b>{fg(user.blood_type)}</b>
+            <b>{formatBloodType(user.blood_type)}</b>
             <span>Golongan Darah</span>
           </div>
           <div>
@@ -71,7 +71,7 @@ export default function Riwayat() {
             <span>Status Kelayakan</span>
           </div>
           <div>
-            <b>{user.last_donated ? fmtDate(user.last_donated) : '-'}</b>
+            <b>{user.last_donated ? formatDate(user.last_donated) : '-'}</b>
             <span>Donor Terakhir</span>
           </div>
         </div>
@@ -97,11 +97,11 @@ export default function Riwayat() {
               {user.last_donated ? (
                 <tr>
                   <td>1</td>
-                  <td>{fmtDate(user.last_donated)}</td>
-                  <td>{fg(user.blood_type)}</td>
+                  <td>{formatDate(user.last_donated)}</td>
+                  <td>{formatBloodType(user.blood_type)}</td>
                   <td>
                     <span className={`bd ${user.ready ? 'ok' : 'tj'}`}>
-                      {user.ready ? 'Masa tunggu selesai' : `Siap ${fmtDate(user.eligible_date)}`}
+                      {user.ready ? 'Masa tunggu selesai' : `Siap ${formatDate(user.eligible_date)}`}
                     </span>
                   </td>
                 </tr>

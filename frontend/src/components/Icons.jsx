@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function Logo({ className = '' }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 203 58" className={className} aria-label="Logo SADA">

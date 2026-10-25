@@ -1,8 +1,8 @@
-import React from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Komponen Modal Dialog Konfirmasi Pengganti window.confirm bawaan browser.
- * Aksesibel dan non-blocking.
+ * Aksesibel dengan dukungan WAI-ARIA Dialog (Modal), Focus Trap, dan tombol Escape.
  *
  * @param {{
  *   isOpen: boolean,
@@ -25,6 +25,62 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }) {
+  const modalCardRef = useRef(null);
+  const cancelButtonRef = useRef(null);
+  const confirmButtonRef = useRef(null);
+  const previouslyFocusedElementRef = useRef(null);
+
+  // Focus trap dan keyboard listener (Escape & Tab)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Simpan elemen yang sebelumnya aktif untuk dikembalikan saat modal ditutup
+    previouslyFocusedElementRef.current = document.activeElement;
+
+    // Fokuskan tombol batal terlebih dahulu untuk keamanan aksi destruktif
+    const focusTimeout = setTimeout(() => {
+      cancelButtonRef.current?.focus();
+    }, 50);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusableElements = [cancelButtonRef.current, confirmButtonRef.current].filter(Boolean);
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(focusTimeout);
+      window.removeEventListener('keydown', handleKeyDown);
+      if (previouslyFocusedElementRef.current?.focus) {
+        previouslyFocusedElementRef.current.focus();
+      }
+    };
+  }, [isOpen, onCancel]);
+
   if (!isOpen) return null;
 
   return (
@@ -33,6 +89,7 @@ export default function ConfirmModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
+      aria-describedby="confirm-modal-description"
       style={{
         position: 'fixed',
         inset: 0,
@@ -48,6 +105,7 @@ export default function ConfirmModal({
       }}
     >
       <div
+        ref={modalCardRef}
         className="modal-card"
         style={{
           background: 'var(--surface, #FFFFFF)',
@@ -72,6 +130,7 @@ export default function ConfirmModal({
           {title}
         </h3>
         <p
+          id="confirm-modal-description"
           style={{
             margin: '0 0 24px',
             fontSize: 14,
@@ -90,6 +149,7 @@ export default function ConfirmModal({
           }}
         >
           <button
+            ref={cancelButtonRef}
             type="button"
             className="sbtn"
             onClick={onCancel}
@@ -103,6 +163,7 @@ export default function ConfirmModal({
             {cancelText}
           </button>
           <button
+            ref={confirmButtonRef}
             type="button"
             className={`sbtn ${isDanger ? 'danger' : ''}`}
             onClick={onConfirm}

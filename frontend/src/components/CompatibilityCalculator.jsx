@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCities, useDonorMatch } from '../hooks/index.js';
-import { GOL, fg, fmtDate } from '../lib.js';
+import { BLOOD_TYPES, formatBloodType, formatDate } from '../lib.js';
 
 export default function CompatibilityCalculator({
   heading = 'Cek Kompatibilitas Golongan Darah',
@@ -32,14 +32,14 @@ export default function CompatibilityCalculator({
 
       <div className="ctl" style={{ marginTop: 20 }}>
         <div className="chips" role="group" aria-label="Golongan darah pasien">
-          {GOL.map((g) => (
+          {BLOOD_TYPES.map((bloodGroup) => (
             <button
-              key={g}
+              key={bloodGroup}
               type="button"
-              aria-pressed={g === selGol}
-              onClick={() => setSelGol(g)}
+              aria-pressed={bloodGroup === selGol}
+              onClick={() => setSelGol(bloodGroup)}
             >
-              {fg(g)}
+              {formatBloodType(bloodGroup)}
             </button>
           ))}
         </div>
@@ -49,9 +49,9 @@ export default function CompatibilityCalculator({
           onChange={(e) => setSelCity(e.target.value)}
         >
           <option value="">Semua kota kawasan Toba</option>
-          {cities.map((c) => (
-            <option key={c} value={c}>
-              {c}
+          {cities.map((cityName) => (
+            <option key={cityName} value={cityName}>
+              {cityName}
             </option>
           ))}
         </select>
@@ -72,13 +72,13 @@ export default function CompatibilityCalculator({
       {data && !error && (
         <div className="calc-results-wrap">
           <p className="ringkas" aria-live="polite">
-            Pasien <strong>{fg(selGol)}</strong>
+            Pasien <strong>{formatBloodType(selGol)}</strong>
             {selCity ? ` di ${selCity}` : ''}:{' '}
             {compatibleTypes.length > 0 && (
               <>
                 menerima donor dari{' '}
                 <span className="grad-compat">
-                  {compatibleTypes.map(fg).join(', ')}
+                  {compatibleTypes.map(formatBloodType).join(', ')}
                 </span>
                 .{' '}
               </>
@@ -91,31 +91,31 @@ export default function CompatibilityCalculator({
           )}
 
           <div className="donor-grid-compact">
-            {results.map((d) => (
-              <article className="it" key={d.id}>
-                <div className={`gol ${d.ready ? '' : 'off'}`}>{fg(d.blood_type)}</div>
+            {results.map((donor) => (
+              <article className="it" key={donor.id}>
+                <div className={`gol ${donor.ready ? '' : 'off'}`}>{formatBloodType(donor.blood_type)}</div>
                 <div className="t">
                   <b>
-                    {d.name} · {d.city}
+                    {donor.name} · {donor.city}
                   </b>
                   <small>
-                    {d.same_type ? 'Golongan sama' : 'Kompatibel'} · {d.phone_masked}
+                    {donor.same_type ? 'Golongan sama' : 'Kompatibel'} · {donor.phone_masked}
                   </small>
                 </div>
-                <span className={`bd ${d.ready ? 'ok' : 'tj'}`}>
-                  {d.ready ? 'Siap donor' : 'Belum boleh'}
+                <span className={`bd ${donor.ready ? 'ok' : 'tj'}`}>
+                  {donor.ready ? 'Siap donor' : 'Belum boleh'}
                 </span>
-                {d.ready ? (
+                {donor.ready ? (
                   <a
                     className="wa"
-                    href={d.wa_url || `https://wa.me/${d.phone}`}
+                    href={donor.wa_url || `https://wa.me/${donor.phone}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Hubungi WhatsApp
                   </a>
                 ) : (
-                  <span className="nx">Bisa donor {fmtDate(d.eligible_date)}</span>
+                  <span className="nx">Bisa donor {formatDate(donor.eligible_date)}</span>
                 )}
               </article>
             ))}

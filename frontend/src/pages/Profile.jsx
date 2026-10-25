@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import { useCities } from '../hooks/index.js';
-import { fg, fmtDate } from '../lib.js';
+import { formatBloodType, formatDate } from '../lib.js';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -55,10 +54,24 @@ export default function Profile() {
     e.preventDefault();
     setMsg('');
     setErr('');
+
+    if (editName.trim().length < 3) {
+      setErr('Nama lengkap minimal 3 karakter.');
+      return;
+    }
+
+    if (editLastDonated) {
+      const today = new Date().toISOString().slice(0, 10);
+      if (editLastDonated > today) {
+        setErr('Tanggal terakhir donor tidak boleh di masa mendatang.');
+        return;
+      }
+    }
+
     setBusy(true);
     try {
       await updateProfile({
-        name: editName,
+        name: editName.trim(),
         city: editCity,
         last_donated: editLastDonated || null,
       });
@@ -101,7 +114,7 @@ export default function Profile() {
         <div className="donor-id-card">
           <div className="card-top-row">
             <div className="blood-type-box" style={{ width: 68, height: 68 }}>
-              <span className="blood-text" style={{ fontSize: 26 }}>{fg(user.blood_type)}</span>
+              <span className="blood-text" style={{ fontSize: 26 }}>{formatBloodType(user.blood_type)}</span>
               <span className="blood-sub">RBC</span>
             </div>
             <div className="card-hospital-meta">
@@ -122,13 +135,13 @@ export default function Profile() {
             <div className="spec-item">
               <span className="spec-label">Terakhir Donor:</span>
               <strong className="spec-val">
-                {user.last_donated ? fmtDate(user.last_donated) : 'Belum pernah dicatat'}
+                {user.last_donated ? formatDate(user.last_donated) : 'Belum pernah dicatat'}
               </strong>
             </div>
             <div className="spec-item">
               <span className="spec-label">Status Kelayakan:</span>
               <strong className="spec-val">
-                {user.ready ? 'Boleh Donor Sekarang' : `Bisa donor lagi ${fmtDate(user.eligible_date)} (${user.days_until_eligible} hari lagi)`}
+                {user.ready ? 'Boleh Donor Sekarang' : `Bisa donor lagi ${formatDate(user.eligible_date)} (${user.days_until_eligible} hari lagi)`}
               </strong>
             </div>
           </div>
@@ -164,7 +177,7 @@ export default function Profile() {
             </label>
             <label>
               Golongan Darah
-              <input value={fg(user.blood_type)} disabled style={{ opacity: 0.7 }} />
+              <input value={formatBloodType(user.blood_type)} disabled style={{ opacity: 0.7 }} />
             </label>
           </div>
 
@@ -172,7 +185,7 @@ export default function Profile() {
             <label>
               Kota Domisili
               <select value={editCity} onChange={(e) => setEditCity(e.target.value)}>
-                {cities.map((c) => (
+                {cities?.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>

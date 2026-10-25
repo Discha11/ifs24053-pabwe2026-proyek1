@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { GOL, fg } from '../lib.js';
+import { useCities } from '../hooks/index.js';
+import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const [cities, setCities] = useState([]);
+  const { cities } = useCities();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,21 +21,69 @@ export default function Register() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api.cities().then((c) => {
-      setCities(c);
-      setFormData((prev) => ({ ...prev, city: c[0] || 'Balige' }));
-    }).catch(() => {});
-  }, []);
+    if (cities?.length > 0 && !formData.city) {
+      setFormData((prev) => ({ ...prev, city: cities[0] }));
+    }
+  }, [cities, formData.city]);
 
   const setField = (key) => (e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }));
 
+  function validateForm() {
+    const errs = [];
+    const trimmedName = formData.name.trim();
+    if (trimmedName.length < 3) {
+      errs.push('Nama lengkap minimal 3 karakter.');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      errs.push('Format alamat email tidak valid.');
+    }
+
+    if (formData.password.length < 6) {
+      errs.push('Kata sandi minimal 6 karakter demi keamanan akun.');
+    }
+
+    if (!BLOOD_TYPES.includes(formData.blood_type)) {
+      errs.push('Pilih golongan darah yang valid.');
+    }
+
+    if (!formData.city) {
+      errs.push('Pilih kota domisili Anda.');
+    }
+
+    const cleanPhone = formData.phone.trim().replace(/[-\s]/g, '');
+    const phoneRegex = /^(08|\+628|628)[0-9]{8,12}$/;
+    if (!phoneRegex.test(cleanPhone)) {
+      errs.push('Nomor WhatsApp harus nomor Indonesia yang valid (contoh: 081234567890).');
+    }
+
+    if (formData.last_donated) {
+      const today = new Date().toISOString().slice(0, 10);
+      if (formData.last_donated > today) {
+        errs.push('Tanggal terakhir donor tidak boleh lebih dari hari ini.');
+      }
+    }
+
+    return errs;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     setErrors([]);
     setBusy(true);
     try {
       await register({
         ...formData,
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim().replace(/[-\s]/g, ''),
         last_donated: formData.last_donated || null,
       });
       navigate('/profil');
@@ -101,15 +149,15 @@ export default function Register() {
             <label>
               Golongan Darah
               <select value={formData.blood_type} onChange={setField('blood_type')}>
-                {GOL.map((g) => (
-                  <option key={g} value={g}>{fg(g)}</option>
+                {BLOOD_TYPES.map((g) => (
+                  <option key={g} value={g}>{formatBloodType(g)}</option>
                 ))}
               </select>
             </label>
             <label>
               Kota Domisili
               <select value={formData.city} onChange={setField('city')}>
-                {cities.map((c) => (
+                {cities?.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>

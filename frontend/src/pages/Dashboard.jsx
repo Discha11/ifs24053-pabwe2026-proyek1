@@ -1,18 +1,16 @@
 import { useCallback, useState } from 'react';
-import { api } from '../api.js';
 import RequestList from '../components/RequestList.jsx';
 import DonorForm from '../components/DonorForm.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import { useStats, useDonors, useCities, useRequests } from '../hooks/index.js';
-import { fg, fmtDate } from '../lib.js';
+import { formatBloodType, formatDate } from '../lib.js';
 
 export default function Dashboard() {
   const { stats, reload: reloadStats } = useStats();
-  const { donors, reload: reloadDonors } = useDonors();
+  const { donors, reload: reloadDonors, markDonated, deleteDonor } = useDonors();
   const { cities } = useCities();
-  const { requests, error: reqError, reload: reloadRequests } = useRequests();
+  const { requests, error: reqError, reload: reloadRequests, closeRequest, deleteRequest } = useRequests();
 
-  const [error, setError] = useState(false);
   const [actionMsg, setActionMsg] = useState('');
   const [actionErr, setActionErr] = useState('');
   const [modalConfig, setModalConfig] = useState({
@@ -40,7 +38,7 @@ export default function Dashboard() {
     setActionMsg('');
     setActionErr('');
     try {
-      await api.markDonated(donor.id);
+      await markDonated(donor.id);
       setActionMsg(`Aksi donor hari ini untuk ${donor.name} berhasil dicatat.`);
       loadDashboardData();
     } catch (err) {
@@ -60,7 +58,7 @@ export default function Dashboard() {
         setActionMsg('');
         setActionErr('');
         try {
-          await api.deleteDonor(donor.id);
+          await deleteDonor(donor.id);
           setActionMsg(`Pendonor ${donor.name} berhasil dihapus.`);
           loadDashboardData();
         } catch (err) {
@@ -74,7 +72,7 @@ export default function Dashboard() {
     setActionMsg('');
     setActionErr('');
     try {
-      await api.closeRequest(request.id);
+      await closeRequest(request.id);
       setActionMsg(`Permintaan darah untuk ${request.hospital} berhasil ditutup.`);
       refreshAll();
     } catch (err) {
@@ -94,7 +92,7 @@ export default function Dashboard() {
         setActionMsg('');
         setActionErr('');
         try {
-          await api.deleteRequest(request.id);
+          await deleteRequest(request.id);
           setActionMsg('Permintaan darah berhasil dihapus.');
           refreshAll();
         } catch (err) {
@@ -114,12 +112,6 @@ export default function Dashboard() {
 
         {actionMsg && <p className="msg ok" role="status">{actionMsg}</p>}
         {actionErr && <p className="msg err" role="alert">{actionErr}</p>}
-
-        {error && (
-          <p className="msg err" role="alert">
-            Tidak bisa terhubung ke server. Pastikan back-end berjalan, lalu muat ulang halaman.
-          </p>
-        )}
 
         {stats && (
           <div className="stats dstats">
@@ -170,12 +162,12 @@ export default function Dashboard() {
                 {donors.map((donor) => (
                   <tr key={donor.id}>
                     <td>{donor.name}</td>
-                    <td>{fg(donor.blood_type)}</td>
+                    <td>{formatBloodType(donor.blood_type)}</td>
                     <td>{donor.city}</td>
                     <td>{donor.phone_masked}</td>
                     <td>
                       <span className={`bd ${donor.ready ? 'ok' : 'tj'}`}>
-                        {donor.ready ? 'Siap donor' : `Boleh ${fmtDate(donor.eligible_date)}`}
+                        {donor.ready ? 'Siap donor' : `Boleh ${formatDate(donor.eligible_date)}`}
                       </span>
                     </td>
                     <td className="acts">

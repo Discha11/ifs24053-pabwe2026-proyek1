@@ -1,5 +1,4 @@
-import React from 'react';
-import { URGENCY, fg, reqTime } from '../lib.js';
+import { URGENCY_CONFIG, formatBloodType, formatRequestTime } from '../lib.js';
 
 /**
  * Komponen untuk menampilkan daftar ringkas permintaan darah pada panel admin.
@@ -34,17 +33,17 @@ export default function RequestList({ requests, error, onClose, onDelete }) {
   return (
     <div className="request-items-list">
       {requests.map((requestItem) => {
-        const [urgencyLabel, urgencyClass] = URGENCY[requestItem.urgency] || ['Umum', 'tj'];
+        const [urgencyLabel, urgencyClass] = URGENCY_CONFIG[requestItem.urgency] || ['Umum', 'tj'];
 
         return (
           <article className="it" key={requestItem.id}>
-            <div className="gol">{fg(requestItem.blood_type)}</div>
+            <div className="gol">{formatBloodType(requestItem.blood_type)}</div>
             <div className="t">
               <b>
                 {requestItem.hospital} · {requestItem.units} kantong
               </b>
               <small>
-                {requestItem.city} · {reqTime(requestItem)}
+                {requestItem.city} · {formatRequestTime(requestItem)}
               </small>
             </div>
             <span className={`bd ${urgencyClass}`}>{urgencyLabel}</span>

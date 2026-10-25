@@ -10,12 +10,31 @@ export default function Login() {
   const [errors, setErrors] = useState([]);
   const [busy, setBusy] = useState(false);
 
+  function validate() {
+    const errs = [];
+    if (!email.trim()) {
+      errs.push('Alamat email atau username wajib diisi.');
+    }
+    if (!password) {
+      errs.push('Kata sandi wajib diisi.');
+    } else if (password.length < 6) {
+      errs.push('Kata sandi minimal 6 karakter.');
+    }
+    return errs;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+    const valErrs = validate();
+    if (valErrs.length > 0) {
+      setErrors(valErrs);
+      return;
+    }
+
     setErrors([]);
     setBusy(true);
     try {
-      await login(email, password);
+      await login(email.trim(), password);
       navigate('/profil');
     } catch (err) {
       setErrors(err.details?.length ? err.details : [err.message]);
@@ -62,17 +81,17 @@ export default function Login() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimal 6 karakter"
+              placeholder="Masukkan kata sandi akun"
               required
             />
           </label>
 
-          <button id="btn-submit" className="go2" disabled={busy} type="submit">
-            {busy ? 'Memeriksa...' : 'Masuk Sekarang'}
+          <button className="go2" disabled={busy}>
+            {busy ? 'Memeriksa Kredensial...' : 'Masuk Sekarang'}
           </button>
 
           <p style={{ textAlign: 'center', margin: '8px 0 0', fontSize: 14, color: 'var(--muted)' }}>
-            Belum punya akun? <Link to="/daftar" style={{ fontWeight: 700, color: 'var(--red)' }}>Daftar Pendonor Baru</Link>
+            Belum punya akun? <Link to="/daftar" style={{ fontWeight: 700, color: 'var(--red)' }}>Daftar Jadi Pendonor</Link>
           </p>
         </form>
       </div>
