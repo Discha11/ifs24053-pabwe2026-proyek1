@@ -91,7 +91,7 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(225,29,72,.12);ou
 .chips button[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 4px 12px rgba(212,43,43,.35)}
 .ctl select{flex:0 0 180px}
 .ringkas{font-weight:700;margin:0 0 14px}
-.gol.off{background:#9AA0AA;box-shadow:none}
+.gol.off{background:#475569;color:#fff;box-shadow:none}
 .nx{color:var(--muted);font-size:14px;font-weight:500}
 .note{font-size:13px;color:var(--muted);margin-top:6px}
 .stage{position:relative;display:grid;place-items:center;min-height:430px}

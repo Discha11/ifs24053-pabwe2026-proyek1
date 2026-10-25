@@ -132,7 +132,7 @@
 .drawer-donor-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--line-subtle);border:1px solid var(--line)}
 .mini-blood-pill{font:800 13px var(--head);width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;flex:none}
 .mini-blood-pill.ready{background:#059669}
-.mini-blood-pill.not-ready{background:#94A3B8}
+.mini-blood-pill.not-ready{background:#475569}
 .mini-donor-info{flex:1;font-size:13px;min-width:0}
 .mini-donor-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini-donor-info small{color:var(--muted);font-size:11px}
