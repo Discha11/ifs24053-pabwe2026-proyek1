@@ -4,6 +4,7 @@ pipeline {
   stages {
     stage('Checkout')          { steps { checkout scm } }
     stage('Install front-end') { steps { dir('frontend') { sh 'npm ci' } } }
+    stage('Test front-end')    { steps { dir('frontend') { sh 'npm test' } } }
     stage('Build front-end')   { steps { dir('frontend') { sh 'npm run build' } } }
     stage('Archive')           { steps { archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true } }
   }

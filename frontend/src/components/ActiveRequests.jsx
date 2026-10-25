@@ -1,24 +1,36 @@
 import PropTypes from 'prop-types';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCities, useDonorMatch } from '../hooks/index.js';
+import { useCities, useDonorMatch, useFilteredRequests } from '../hooks/index.js';
 import { IconHeart } from './Icons.jsx';
 import FilterBar from './FilterBar.jsx';
 import RequestCard from './RequestCard.jsx';
 import CompatibilityCalculator from './CompatibilityCalculator.jsx';
 
 export default function ActiveRequests({ requests = [], error = false }) {
-  const [search, setSearch] = useState('');
-  const [selectedGol, setSelectedGol] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedUrgency, setSelectedUrgency] = useState('');
-  const [priorityUrgency, setPriorityUrgency] = useState(true);
   const { cities } = useCities();
   const { fetchMatch } = useDonorMatch();
   const [expandedMatchId, setExpandedMatchId] = useState(null);
   const [matchData, setMatchData] = useState({});
   const [loadingMatchId, setLoadingMatchId] = useState(null);
   const [activeTab, setActiveTab] = useState('requests'); // 'requests' | 'calculator'
+
+  const {
+    search,
+    setSearch,
+    selectedGol,
+    setSelectedGol,
+    selectedCity,
+    setSelectedCity,
+    selectedUrgency,
+    setSelectedUrgency,
+    priorityUrgency,
+    setPriorityUrgency,
+    filteredRequests,
+    resetFilters,
+    totalFiltered,
+    totalRequests,
+  } = useFilteredRequests(requests);
 
   const handleToggleMatch = async (req) => {
     if (expandedMatchId === req.id) {
@@ -38,34 +50,6 @@ export default function ActiveRequests({ requests = [], error = false }) {
       }
     }
   };
-
-  const resetFilters = () => {
-    setSearch('');
-    setSelectedGol('');
-    setSelectedCity('');
-    setSelectedUrgency('');
-  };
-
-  const filteredRequests = useMemo(() => {
-    if (!requests) return [];
-    let list = requests.filter((r) => {
-      const matchSearch =
-        search === '' ||
-        r.hospital?.toLowerCase().includes(search.toLowerCase()) ||
-        r.city?.toLowerCase().includes(search.toLowerCase()) ||
-        r.blood_type?.toLowerCase().includes(search.toLowerCase());
-      const matchGol = selectedGol === '' || r.blood_type === selectedGol;
-      const matchCity = selectedCity === '' || r.city === selectedCity;
-      const matchUrgency = selectedUrgency === '' || r.urgency === selectedUrgency;
-      return matchSearch && matchGol && matchCity && matchUrgency;
-    });
-
-    if (priorityUrgency) {
-      const weight = { darurat: 3, segera: 2, terjadwal: 1 };
-      list.sort((a, b) => (weight[b.urgency] || 0) - (weight[a.urgency] || 0));
-    }
-    return list;
-  }, [requests, search, selectedGol, selectedCity, selectedUrgency, priorityUrgency]);
 
   return (
     <section className="active-req-section" id="permintaan-aktif">

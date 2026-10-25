@@ -1,53 +1,34 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { api, getToken, setToken, clearToken } from '../api.js';
+import { api, setToken, clearToken } from '../api.js';
 
 const AuthContext = createContext(null);
-const USER_SESSION_KEY = 'sada_user_session';
+
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem(USER_SESSION_KEY) || localStorage.getItem('sada_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch (_err) {
-      return null;
-    }
-  });
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
-    const token = getToken();
-    if (!token) {
-      setUser(null);
-      sessionStorage.removeItem(USER_SESSION_KEY);
-      localStorage.removeItem('sada_user');
-      return;
-    }
     setLoading(true);
     try {
+      // Memvalidasi sesi pengguna secara autoritatif langsung ke back-end melalui HttpOnly cookie / In-Memory token
       const data = await api.me();
       if (data?.user) {
         setUser(data.user);
-        sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(data.user));
-        localStorage.removeItem('sada_user'); // Bersihkan storage permanen
-      } else {
-        setUser(null);
-        sessionStorage.removeItem(USER_SESSION_KEY);
-        localStorage.removeItem('sada_user');
+        return data.user;
       }
+      setUser(null);
+      return null;
     } catch (_err) {
       setUser(null);
-      sessionStorage.removeItem(USER_SESSION_KEY);
-      localStorage.removeItem('sada_user');
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (getToken()) {
-      refreshUser();
-    }
+    refreshUser();
   }, []);
 
   const login = async (email, password) => {
@@ -59,8 +40,6 @@ export function AuthProvider({ children }) {
       }
       setToken(res.token);
       setUser(res.user);
-      sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
-      localStorage.removeItem('sada_user');
       return res.user;
     } finally {
       setLoading(false);
@@ -76,8 +55,6 @@ export function AuthProvider({ children }) {
       }
       setToken(res.token);
       setUser(res.user);
-      sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
-      localStorage.removeItem('sada_user');
       return res.user;
     } finally {
       setLoading(false);
@@ -87,16 +64,12 @@ export function AuthProvider({ children }) {
   const logout = () => {
     clearToken();
     setUser(null);
-    sessionStorage.removeItem(USER_SESSION_KEY);
-    localStorage.removeItem('sada_user');
   };
 
   const updateProfile = async (formData) => {
     const res = await api.updateProfile(formData);
     const updated = res?.user || { ...user, ...formData };
     setUser(updated);
-    sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updated));
-    localStorage.removeItem('sada_user');
     return updated;
   };
 
@@ -104,14 +77,33 @@ export function AuthProvider({ children }) {
     const today = new Date().toISOString().slice(0, 10);
     const updated = { ...user, last_donated: today, ready: false };
     setUser(updated);
-    sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(updated));
-    localStorage.removeItem('sada_user');
     try {
       await api.recordUserDonated();
     } catch (_err) {
       // Server-side recorded if online
     }
     return updated;
+  };
+
+  /**
+   * Verifikasi hak akses role admin secara autoritatif ke back-end.
+   * Mencegah bypass inspeksi role di sisi klien browser semata.
+   * @returns {Promise<boolean>}
+   */
+  const verifyAdminRole = async () => {
+    try {
+      const data = await api.me();
+      const currentUser = data?.user;
+      if (!currentUser) return false;
+      const isAdmin = currentUser.role === 'admin' || currentUser.is_admin === true;
+      if (isAdmin) {
+        setUser(currentUser);
+        return true;
+      }
+      return false;
+    } catch (_err) {
+      return false;
+    }
   };
 
   return (
@@ -125,6 +117,7 @@ export function AuthProvider({ children }) {
         refreshUser,
         updateProfile,
         recordDonated,
+        verifyAdminRole,
       }}
     >
       {children}
@@ -137,3 +130,4 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;
 }
+

@@ -1,70 +1,24 @@
 /**
- * Layanan manajemen penyimpanan token autentikasi yang aman.
+ * Layanan manajemen token autentikasi berbasis IN-MEMORY murni dan HTTPONLY COOKIE.
  *
- * ARSITEKTUR KEAMANAN TOKEN & REKOMENDASI HTTPONLY COOKIE:
- * 1. Di lingkungan produksi ideal, autentikasi berbasis HttpOnly cookie (diterbitkan oleh server
- *    melalui header response Set-Cookie: ...; HttpOnly; Secure; SameSite=Strict) adalah standar emas
- *    karena sepenuhnya kebal dari pencurian token via serangan XSS di sisi JavaScript browser.
- * 2. Klien frontend SADA dikonfigurasi secara bawaan dengan `credentials: 'include'` pada seluruh
- *    pemanggilan fetch HTTP di api.js untuk secara otomatis mendukung dan meneruskan HttpOnly cookie server.
- * 3. Untuk skenario decoupled REST API di mana back-end mengirimkan Bearer token dalam JSON body,
- *    modul ini memprioritaskan penyimpanan di IN-MEMORY (variabel memori runtime JavaScript `inMemoryToken`).
- * 4. Kunci localStorage sepenuhnya dihindari untuk mencegah persistensi token jangka panjang yang rentan XSS.
- *    Fallback ke sessionStorage dan cookie SameSite=Strict hanya aktif untuk mempertahankan sesi saat tab aktif di-refresh,
- *    serta seluruh state dibersihkan tuntas saat token kedaluwarsa (JWT exp check) atau saat logout.
+ * ARSITEKTUR KEAMANAN TINGKAT TINGGI (OWASP RECOMMENDED):
+ * 1. Menghilangkan seluruh penyimpanan token di Web Storage (localStorage/sessionStorage/document.cookie)
+ *    yang dapat dibaca oleh script pihak ketiga atau serangan XSS (Cross-Site Scripting).
+ * 2. Mengutamakan otorisasi berbasis backend via HttpOnly Cookie yang dikirimkan secara otomatis
+ *    oleh peramban dengan opsi `credentials: 'include'`.
+ * 3. Token Bearer transien selama sesi aktif hanya disimpan di memori variabel privat JavaScript (In-Memory).
+ *    Ketika tab atau browser ditutup/di-refresh, otentikasi kembali diverifikasi secara aman ke endpoint
+ *    backend `/api/auth/me` melalui HttpOnly cookie.
  */
 
 let inMemoryToken = null;
-
-const COOKIE_NAME = 'sada_auth_token';
-const SESSION_KEY = 'sada_session_token';
-
-/**
- * Membaca nilai cookie berdasarkan nama cookie.
- * @param {string} name
- * @returns {string}
- */
-function getCookie(name) {
-  if (typeof document === 'undefined') return '';
-  const cookies = document.cookie.split(';');
-  for (let i = 0; i < cookies.length; i++) {
-    const c = cookies[i].trim();
-    if (c.startsWith(`${name}=`)) {
-      return decodeURIComponent(c.substring(name.length + 1));
-    }
-  }
-  return '';
-}
-
-/**
- * Menulis cookie dengan atribut keamanan SameSite=Strict.
- * @param {string} name
- * @param {string} value
- * @param {number} days
- */
-function setCookie(name, value, days = 7) {
-  if (typeof document === 'undefined') return;
-  const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  const secureFlag = isSecure ? '; Secure' : '';
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Strict${secureFlag}`;
-}
-
-/**
- * Menghapus cookie dengan memundurkan masa berlaku.
- * @param {string} name
- */
-function eraseCookie(name) {
-  if (typeof document === 'undefined') return;
-  document.cookie = `${name}=; Max-Age=-99999999; path=/; SameSite=Strict`;
-}
 
 /**
  * Memeriksa apakah token JWT sudah kedaluwarsa berdasarkan klaim `exp`.
  * @param {string} token
  * @returns {boolean}
  */
-function isTokenExpired(token) {
+export function isTokenExpired(token) {
   if (!token || typeof token !== 'string') return true;
   try {
     const parts = token.split('.');
@@ -82,97 +36,70 @@ function isTokenExpired(token) {
 
 export const tokenStorage = {
   /**
-   * Mengambil token autentikasi aktif dari memory, sessionStorage, atau secure cookie.
+   * Mengambil token autentikasi aktif dari memori privat.
+   * Tidak mengakses storage peramban yang rentan XSS.
    * @returns {string}
    */
   get() {
     if (inMemoryToken && !isTokenExpired(inMemoryToken)) {
       return inMemoryToken;
     }
-
-    // 1. Coba baca dari sessionStorage
-    try {
-      const sessionToken = sessionStorage.getItem(SESSION_KEY);
-      if (sessionToken && !isTokenExpired(sessionToken)) {
-        inMemoryToken = sessionToken;
-        return sessionToken;
-      }
-    } catch (_err) {
-      // Abaikan jika storage diblokir
-    }
-
-    // 2. Coba baca dari secure cookie
-    const cookieToken = getCookie(COOKIE_NAME);
-    if (cookieToken && !isTokenExpired(cookieToken)) {
-      inMemoryToken = cookieToken;
-      return cookieToken;
-    }
-
-    // Bersihkan sesi jika sudah kedaluwarsa
-    tokenStorage.clear();
+    inMemoryToken = null;
     return '';
   },
 
   /**
-   * Menyimpan token autentikasi ke in-memory, sessionStorage, dan secure cookie.
+   * Menyimpan token secara eksklusif di memori runtime JavaScript.
    * @param {string|null} token
    */
   set(token) {
     if (!token || typeof token !== 'string') {
-      tokenStorage.clear();
+      inMemoryToken = null;
       return;
     }
 
     const sanitized = token.trim();
     if (isTokenExpired(sanitized)) {
-      tokenStorage.clear();
+      inMemoryToken = null;
       return;
     }
 
     inMemoryToken = sanitized;
 
+    // Bersihkan seluruh legacy storage jika sebelumnya pernah tersimpan
     try {
-      sessionStorage.setItem(SESSION_KEY, sanitized);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('sada_token');
+        localStorage.removeItem('sada_auth_token');
+        sessionStorage.removeItem('sada_session_token');
+        sessionStorage.removeItem('sada_user_session');
+      }
     } catch (_err) {
-      // Memory fallback jika sessionStorage diblokir
-    }
-
-    setCookie(COOKIE_NAME, sanitized, 7);
-
-    // Bersihkan kunci dari localStorage untuk mencegah penyimpanan rentan XSS
-    try {
-      localStorage.removeItem('sada_token');
-      localStorage.removeItem('sada_auth_token');
-      localStorage.removeItem('sada_secure_session');
-    } catch (_err) {
-      // Abaikan
+      // Abaikan jika sandbox storage dibatasi
     }
   },
 
   /**
-   * Menghapus seluruh sesi token saat logout.
+   * Menghapus seluruh sesi token in-memory dan membersihkan storage peninggalan saat logout.
    */
   clear() {
     inMemoryToken = null;
     try {
-      sessionStorage.removeItem(SESSION_KEY);
-    } catch (_err) {
-      // Abaikan
-    }
-
-    eraseCookie(COOKIE_NAME);
-
-    try {
-      localStorage.removeItem('sada_token');
-      localStorage.removeItem('sada_auth_token');
-      localStorage.removeItem('sada_secure_session');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('sada_token');
+        localStorage.removeItem('sada_auth_token');
+        sessionStorage.removeItem('sada_session_token');
+        sessionStorage.removeItem('sada_user_session');
+        // Bersihkan cookie peninggalan
+        document.cookie = 'sada_auth_token=; Max-Age=-99999999; path=/; SameSite=Strict';
+      }
     } catch (_err) {
       // Abaikan
     }
   },
 
   /**
-   * Memeriksa status keberadaan token yang valid saat ini.
+   * Memeriksa status ketersediaan token aktif di memori.
    * @returns {boolean}
    */
   isAuthenticated() {

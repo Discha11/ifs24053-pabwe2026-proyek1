@@ -1,4 +1,5 @@
 import { tokenStorage, getToken, setToken, clearToken } from './services/tokenStorage.js';
+import { ERROR_MESSAGES } from './utils/errors.js';
 
 export { getToken, setToken, clearToken, tokenStorage };
 
@@ -31,7 +32,7 @@ async function request(path, options = {}) {
     if (netErr.name === 'AbortError') {
       throw netErr;
     }
-    throw new Error('Tidak dapat terhubung ke server back-end. Pastikan server aktif lalu muat ulang.');
+    throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
   }
 
   if (res.status === 204) return null;
