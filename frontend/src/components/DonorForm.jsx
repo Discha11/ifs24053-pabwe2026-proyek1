@@ -1,9 +1,8 @@
 import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
-import { useDonors } from '../hooks/index.js';
+import { useEffect } from 'react';
+import { useDonors, useForm } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 import { validationSchemas, sanitizePhone } from '../utils/validation.js';
-import { getErrorMessage } from '../utils/errors.js';
 
 /**
  * Komponen form pendaftaran pendonor baru pada panel kelola data admin.
@@ -11,57 +10,35 @@ import { getErrorMessage } from '../utils/errors.js';
  */
 export default function DonorForm({ cities = [], onSaved = undefined }) {
   const { createDonor } = useDonors();
-  const initialFormState = {
-    name: '',
-    blood_type: 'A+',
-    city: '',
-    phone: '',
-    last_donated: '',
-  };
 
-  const [formData, setFormData] = useState(initialFormState);
-  const [errors, setErrors] = useState([]);
-  const [submitting, setSubmitting] = useState(false);
+  const { values, errors, submitting, handleChange, handleSubmit, resetForm, setFieldValue } = useForm({
+    initialValues: {
+      name: '',
+      blood_type: 'A+',
+      city: '',
+      phone: '',
+      last_donated: '',
+    },
+    validationSchema: validationSchemas.donor,
+    onSubmit: async (formValues) => {
+      const cleanPhone = sanitizePhone(formValues.phone);
+      await createDonor({
+        ...formValues,
+        name: formValues.name.trim(),
+        phone: cleanPhone,
+        last_donated: formValues.last_donated || null,
+      });
+      resetForm();
+      if (cities?.[0]) setFieldValue('city', cities[0]);
+      if (onSaved) onSaved();
+    },
+  });
 
   useEffect(() => {
-    if (cities?.length > 0 && !formData.city) {
-      setFormData((prev) => ({ ...prev, city: cities[0] }));
+    if (cities?.length > 0 && !values.city) {
+      setFieldValue('city', cities[0]);
     }
-  }, [cities, formData.city]);
-
-  const handleChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-  };
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setErrors([]);
-
-    const validationErrors = validationSchemas.donor(formData);
-
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    const cleanPhone = sanitizePhone(formData.phone);
-
-    setSubmitting(true);
-    try {
-      await createDonor({
-        ...formData,
-        name: formData.name.trim(),
-        phone: cleanPhone,
-        last_donated: formData.last_donated || null,
-      });
-      setFormData({ ...initialFormState, city: cities[0] || '' });
-      if (onSaved) onSaved();
-    } catch (err) {
-      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  }, [cities, values.city, setFieldValue]);
 
   return (
     <form className="fm" onSubmit={handleSubmit}>
@@ -81,7 +58,7 @@ export default function DonorForm({ cities = [], onSaved = undefined }) {
           <input
             id="donor-name"
             name="name"
-            value={formData.name}
+            value={values.name}
             onChange={handleChange('name')}
             maxLength={80}
             placeholder="Mis. Daniel Silalahi"
@@ -93,7 +70,7 @@ export default function DonorForm({ cities = [], onSaved = undefined }) {
           <select
             id="donor-blood-type"
             name="blood_type"
-            value={formData.blood_type}
+            value={values.blood_type}
             onChange={handleChange('blood_type')}
           >
             {BLOOD_TYPES.map((bloodGroup) => (
@@ -111,7 +88,7 @@ export default function DonorForm({ cities = [], onSaved = undefined }) {
           <select
             id="donor-city"
             name="city"
-            value={formData.city}
+            value={values.city}
             onChange={handleChange('city')}
           >
             {cities?.map((city) => (
@@ -128,7 +105,7 @@ export default function DonorForm({ cities = [], onSaved = undefined }) {
             name="phone"
             type="tel"
             inputMode="tel"
-            value={formData.phone}
+            value={values.phone}
             onChange={handleChange('phone')}
             placeholder="081234567890"
             required
@@ -143,7 +120,7 @@ export default function DonorForm({ cities = [], onSaved = undefined }) {
           name="last_donated"
           type="date"
           max={new Date().toISOString().slice(0, 10)}
-          value={formData.last_donated}
+          value={values.last_donated}
           onChange={handleChange('last_donated')}
         />
       </label>

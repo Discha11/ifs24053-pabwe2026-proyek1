@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
-import { useCities } from '../hooks/index.js';
+import { useCities, useForm } from '../hooks/index.js';
 import { formatBloodType, formatDate } from '../lib.js';
 import { validationSchemas } from '../utils/validation.js';
 import { getErrorMessage } from '../utils/errors.js';
@@ -10,21 +10,36 @@ import { getErrorMessage } from '../utils/errors.js';
 export default function Profile() {
   const { user, loading, logout, updateProfile, recordDonated } = useAuth();
   const { cities } = useCities();
-  const [editName, setEditName] = useState('');
-  const [editCity, setEditCity] = useState('');
-  const [editLastDonated, setEditLastDonated] = useState('');
   const [msg, setMsg] = useState('');
-  const [err, setErr] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [actionErr, setActionErr] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const { values, errors, submitting, handleChange, handleSubmit, setFieldValue } = useForm({
+    initialValues: {
+      name: '',
+      city: '',
+      last_donated: '',
+    },
+    validationSchema: validationSchemas.profile,
+    onSubmit: async (formValues) => {
+      setMsg('');
+      setActionErr('');
+      await updateProfile({
+        name: formValues.name.trim(),
+        city: formValues.city,
+        last_donated: formValues.last_donated || null,
+      });
+      setMsg('Profil berhasil diperbarui.');
+    },
+  });
 
   useEffect(() => {
     if (user) {
-      setEditName(user.name || '');
-      setEditCity(user.city || '');
-      setEditLastDonated(user.last_donated || '');
+      setFieldValue('name', user.name || '');
+      setFieldValue('city', user.city || '');
+      setFieldValue('last_donated', user.last_donated || '');
     }
-  }, [user]);
+  }, [user, setFieldValue]);
 
   if (loading) {
     return (
@@ -51,36 +66,6 @@ export default function Profile() {
     );
   }
 
-  async function handleUpdate(e) {
-    e.preventDefault();
-    setMsg('');
-    setErr('');
-
-    const validationErrors = validationSchemas.profile({
-      name: editName,
-      last_donated: editLastDonated,
-    });
-
-    if (validationErrors.length > 0) {
-      setErr(validationErrors[0]);
-      return;
-    }
-
-    setBusy(true);
-    try {
-      await updateProfile({
-        name: editName.trim(),
-        city: editCity,
-        last_donated: editLastDonated || null,
-      });
-      setMsg('Profil berhasil diperbarui.');
-    } catch (error) {
-      setErr(getErrorMessage(error));
-    } finally {
-      setBusy(false);
-    }
-  }
-
   const handleRecordDonated = () => {
     setShowConfirm(true);
   };
@@ -88,12 +73,12 @@ export default function Profile() {
   const executeRecordDonated = async () => {
     setShowConfirm(false);
     setMsg('');
-    setErr('');
+    setActionErr('');
     try {
       await recordDonated();
       setMsg('Donor hari ini berhasil dicatat! Terima kasih atas aksi kemanusiaan Anda.');
     } catch (error) {
-      setErr(getErrorMessage(error));
+      setActionErr(getErrorMessage(error));
     }
   };
 
@@ -106,7 +91,14 @@ export default function Profile() {
         </div>
 
         {msg && <p className="msg ok" role="status">{msg}</p>}
-        {err && <p className="msg err" role="alert">{err}</p>}
+        {actionErr && <p className="msg err" role="alert">{actionErr}</p>}
+        {errors.length > 0 && (
+          <ul className="errs" role="alert">
+            {errors.map((errorMsg) => (
+              <li key={errorMsg}>{errorMsg}</li>
+            ))}
+          </ul>
+        )}
 
         {/* Digital Donor Card */}
         <div className="donor-id-card">
@@ -157,12 +149,12 @@ export default function Profile() {
 
         {/* Edit Profile Form */}
         <h2 className="sec">Perbarui Informasi Akun</h2>
-        <form className="fm w-full" onSubmit={handleUpdate}>
+        <form className="fm w-full" onSubmit={handleSubmit}>
           <label>
             Nama Lengkap
             <input
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
+              value={values.name}
+              onChange={handleChange('name')}
               required
             />
           </label>
@@ -181,7 +173,7 @@ export default function Profile() {
           <div className="two">
             <label>
               Kota Domisili
-              <select value={editCity} onChange={(e) => setEditCity(e.target.value)}>
+              <select value={values.city} onChange={handleChange('city')}>
                 {cities?.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -192,14 +184,14 @@ export default function Profile() {
               <input
                 type="date"
                 max={new Date().toISOString().slice(0, 10)}
-                value={editLastDonated}
-                onChange={(e) => setEditLastDonated(e.target.value)}
+                value={values.last_donated}
+                onChange={handleChange('last_donated')}
               />
             </label>
           </div>
 
-          <button className="sbtn btn-fit" disabled={busy}>
-            {busy ? 'Menyimpan...' : 'Simpan Perubahan'}
+          <button className="sbtn btn-fit" disabled={submitting}>
+            {submitting ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
         </form>
 

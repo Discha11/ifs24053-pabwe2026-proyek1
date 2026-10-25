@@ -1,54 +1,40 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { useCities } from '../hooks/index.js';
+import { useCities, useForm } from '../hooks/index.js';
 import { validationSchemas, sanitizePhone } from '../utils/validation.js';
-import { getErrorMessage } from '../utils/errors.js';
 
 export default function Settings() {
   const { user, loading, updateProfile } = useAuth();
   const { cities } = useCities();
-  const [name, setName] = useState('');
-  const [city, setCity] = useState('');
-  const [phone, setPhone] = useState('');
-  const [notif, setNotif] = useState(true);
   const [msg, setMsg] = useState('');
-  const [err, setErr] = useState('');
-  const [busy, setBusy] = useState(false);
+
+  const { values, errors, submitting, handleChange, handleSubmit, setFieldValue } = useForm({
+    initialValues: {
+      name: '',
+      city: '',
+      phone: '',
+      notif: true,
+    },
+    validationSchema: validationSchemas.settings,
+    onSubmit: async (formValues) => {
+      setMsg('');
+      await updateProfile({
+        name: formValues.name.trim(),
+        city: formValues.city,
+        phone: sanitizePhone(formValues.phone),
+      });
+      setMsg('Pengaturan akun berhasil disimpan.');
+    },
+  });
 
   useEffect(() => {
     if (user) {
-      setName(user.name || '');
-      setCity(user.city || '');
-      setPhone(user.phone || '');
+      setFieldValue('name', user.name || '');
+      setFieldValue('city', user.city || '');
+      setFieldValue('phone', user.phone || '');
     }
-  }, [user]);
-
-  async function handleSave(e) {
-    e.preventDefault();
-    setMsg('');
-    setErr('');
-
-    const validationErrors = validationSchemas.settings({ name, phone });
-    if (validationErrors.length > 0) {
-      setErr(validationErrors[0]);
-      return;
-    }
-
-    setBusy(true);
-    try {
-      await updateProfile({
-        name: name.trim(),
-        city,
-        phone: sanitizePhone(phone),
-      });
-      setMsg('Pengaturan akun berhasil disimpan.');
-    } catch (e) {
-      setErr(getErrorMessage(e));
-    } finally {
-      setBusy(false);
-    }
-  }
+  }, [user, setFieldValue]);
 
   if (loading) {
     return (
@@ -82,16 +68,22 @@ export default function Settings() {
         <p className="sub">Kelola preferensi akun, kontak darurat, dan informasi profil Anda.</p>
 
         {msg && <p className="msg ok" role="status">{msg}</p>}
-        {err && <p className="msg err" role="alert">{err}</p>}
+        {errors.length > 0 && (
+          <ul className="errs" role="alert">
+            {errors.map((errorMsg) => (
+              <li key={errorMsg}>{errorMsg}</li>
+            ))}
+          </ul>
+        )}
 
-        <form className="fm w-full" onSubmit={handleSave}>
+        <form className="fm w-full" onSubmit={handleSubmit}>
           <label>
             Nama Lengkap
             <input
               id="name"
               name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={values.name}
+              onChange={handleChange('name')}
               required
             />
           </label>
@@ -114,14 +106,14 @@ export default function Settings() {
                 id="phone"
                 name="phone"
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={values.phone}
+                onChange={handleChange('phone')}
                 placeholder="081234567890"
               />
             </label>
             <label>
               Kota Domisili
-              <select id="city" name="city" value={city} onChange={(e) => setCity(e.target.value)}>
+              <select id="city" name="city" value={values.city} onChange={handleChange('city')}>
                 {cities?.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -133,15 +125,15 @@ export default function Settings() {
             <input
               type="checkbox"
               id="notif"
-              checked={notif}
-              onChange={(e) => setNotif(e.target.checked)}
+              checked={values.notif}
+              onChange={handleChange('notif')}
               className="auto-width"
             />
             <span>Terima pemberitahuan WhatsApp saat ada kebutuhan darah darurat yang cocok</span>
           </label>
 
-          <button className="go2 mt-18" disabled={busy} type="submit">
-            {busy ? 'Menyimpan...' : 'Simpan Pengaturan'}
+          <button className="go2 mt-18" disabled={submitting} type="submit">
+            {submitting ? 'Menyimpan...' : 'Simpan Pengaturan'}
           </button>
         </form>
       </div>

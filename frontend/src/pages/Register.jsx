@@ -1,60 +1,43 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { useCities } from '../hooks/index.js';
+import { useCities, useForm } from '../hooks/index.js';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 import { validationSchemas, sanitizePhone } from '../utils/validation.js';
-import { getErrorMessage } from '../utils/errors.js';
 
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { cities } = useCities();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    blood_type: 'A+',
-    city: '',
-    phone: '',
-    last_donated: '',
-  });
-  const [errors, setErrors] = useState([]);
-  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (cities?.length > 0 && !formData.city) {
-      setFormData((prev) => ({ ...prev, city: cities[0] }));
-    }
-  }, [cities, formData.city]);
-
-  const setField = (key) => (e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }));
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const validationErrors = validationSchemas.register(formData);
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setErrors([]);
-    setBusy(true);
-    try {
+  const { values, errors, submitting, handleChange, handleSubmit, setFieldValue } = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      password: '',
+      blood_type: 'A+',
+      city: '',
+      phone: '',
+      last_donated: '',
+    },
+    validationSchema: validationSchemas.register,
+    onSubmit: async (formValues) => {
       await register({
-        ...formData,
-        name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
-        phone: sanitizePhone(formData.phone),
-        last_donated: formData.last_donated || null,
+        ...formValues,
+        name: formValues.name.trim(),
+        email: formValues.email.trim().toLowerCase(),
+        phone: sanitizePhone(formValues.phone),
+        last_donated: formValues.last_donated || null,
       });
       navigate('/profil');
-    } catch (err) {
-      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
-    } finally {
-      setBusy(false);
+    },
+  });
+
+  useEffect(() => {
+    if (cities?.length > 0 && !values.city) {
+      setFieldValue('city', cities[0]);
     }
-  }
+  }, [cities, values.city, setFieldValue]);
 
   return (
     <main id="main-content" role="main">
@@ -76,8 +59,8 @@ export default function Register() {
           <label>
             Nama Lengkap
             <input
-              value={formData.name}
-              onChange={setField('name')}
+              value={values.name}
+              onChange={handleChange('name')}
               maxLength={80}
               placeholder="Mis. Binsar Nababan"
               required
@@ -89,8 +72,8 @@ export default function Register() {
               Alamat Email
               <input
                 type="email"
-                value={formData.email}
-                onChange={setField('email')}
+                value={values.email}
+                onChange={handleChange('email')}
                 placeholder="nama@email.com"
                 required
               />
@@ -99,8 +82,8 @@ export default function Register() {
               Kata Sandi
               <input
                 type="password"
-                value={formData.password}
-                onChange={setField('password')}
+                value={values.password}
+                onChange={handleChange('password')}
                 placeholder="Minimal 6 karakter"
                 required
               />
@@ -110,7 +93,7 @@ export default function Register() {
           <div className="two">
             <label>
               Golongan Darah
-              <select value={formData.blood_type} onChange={setField('blood_type')}>
+              <select value={values.blood_type} onChange={handleChange('blood_type')}>
                 {BLOOD_TYPES.map((g) => (
                   <option key={g} value={g}>{formatBloodType(g)}</option>
                 ))}
@@ -118,7 +101,7 @@ export default function Register() {
             </label>
             <label>
               Kota Domisili
-              <select value={formData.city} onChange={setField('city')}>
+              <select value={values.city} onChange={handleChange('city')}>
                 {cities?.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -131,8 +114,8 @@ export default function Register() {
             <input
               type="tel"
               inputMode="tel"
-              value={formData.phone}
-              onChange={setField('phone')}
+              value={values.phone}
+              onChange={handleChange('phone')}
               placeholder="081234567890"
               required
             />
@@ -143,13 +126,13 @@ export default function Register() {
             <input
               type="date"
               max={new Date().toISOString().slice(0, 10)}
-              value={formData.last_donated}
-              onChange={setField('last_donated')}
+              value={values.last_donated}
+              onChange={handleChange('last_donated')}
             />
           </label>
 
-          <button className="go2" disabled={busy}>
-            {busy ? 'Mendaftarkan Akun...' : 'Daftar Sekarang'}
+          <button className="go2" disabled={submitting}>
+            {submitting ? 'Mendaftarkan Akun...' : 'Daftar Sekarang'}
           </button>
 
           <p className="auth-sub-link">

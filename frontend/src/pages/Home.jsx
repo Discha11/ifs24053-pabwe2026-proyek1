@@ -2,14 +2,13 @@ import { Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
 import Ticker from '../components/Ticker.jsx';
 import { IconHeart, IconSearch, Mascot, IconDrop, IconCheck } from '../components/Icons.jsx';
-import { useStats, useRequests } from '../hooks/index.js';
+import { useData } from '../context/DataContext.jsx';
 import { formatBloodType } from '../lib.js';
 
 const ActiveRequests = lazy(() => import('../components/ActiveRequests.jsx'));
 
 export default function Home() {
-  const { requests, error } = useRequests();
-  const { stats } = useStats();
+  const { requests, stats, requestsError: error } = useData();
   const urgent = requests?.find((r) => r.urgency === 'darurat');
 
   return (

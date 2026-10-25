@@ -1,9 +1,9 @@
 import { useLocation } from 'react-router-dom';
 import ActiveRequests from '../components/ActiveRequests.jsx';
-import { useRequests } from '../hooks/index.js';
+import { useData } from '../context/DataContext.jsx';
 
 export default function Requests() {
-  const { requests, error } = useRequests();
+  const { requests, requestsError: error } = useData();
   const { state } = useLocation();
 
   return (

@@ -1,71 +1,52 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCities, useRequests } from '../hooks/index.js';
+import { useCities, useForm } from '../hooks/index.js';
+import { useData } from '../context/DataContext.jsx';
 import { BLOOD_TYPES, formatBloodType } from '../lib.js';
 import { validationSchemas, sanitizePhone } from '../utils/validation.js';
-import { getErrorMessage } from '../utils/errors.js';
 
 const getTodayDateString = () => new Date().toISOString().slice(0, 10);
 
 /**
  * Halaman pembuatan permintaan kebutuhan darah baru.
+ * Menggunakan useForm hook reusable untuk manajemen state dan validasi terpusat.
  */
 export default function CreateRequest() {
   const navigate = useNavigate();
   const { cities } = useCities();
-  const { createRequest } = useRequests();
-  const [formData, setFormData] = useState({
-    blood_type: 'A+',
-    hospital: '',
-    city: '',
-    units: 1,
-    urgency: 'segera',
-    needed_date: '',
-    contact_phone: '',
-  });
-  const [errors, setErrors] = useState([]);
-  const [submitting, setSubmitting] = useState(false);
+  const { createRequest } = useData();
 
-  useEffect(() => {
-    if (cities?.length > 0 && !formData.city) {
-      setFormData((prev) => ({ ...prev, city: cities[0] }));
-    }
-  }, [cities, formData.city]);
+  const { values, submitting, errors, handleChange, handleSubmit, setFieldValue } = useForm({
+    initialValues: {
+      blood_type: 'A+',
+      hospital: '',
+      city: '',
+      units: 1,
+      urgency: 'segera',
+      needed_date: '',
+      contact_phone: '',
+    },
+    validationSchema: validationSchemas.createRequest,
+    onSubmit: async (formValues) => {
+      const cleanPhone = sanitizePhone(formValues.contact_phone);
+      const unitsNum = Number(formValues.units);
 
-  const handleChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-  };
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setErrors([]);
-
-    const validationErrors = validationSchemas.createRequest(formData);
-
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    const cleanPhone = sanitizePhone(formData.contact_phone);
-    const unitsNum = Number(formData.units);
-
-    setSubmitting(true);
-    try {
       await createRequest({
-        ...formData,
-        hospital: formData.hospital.trim(),
+        ...formValues,
+        hospital: formValues.hospital.trim(),
         contact_phone: cleanPhone,
         units: unitsNum,
-        needed_date: formData.needed_date || null,
+        needed_date: formValues.needed_date || null,
       });
       navigate('/permintaan', { state: { created: true } });
-    } catch (err) {
-      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
-    } finally {
-      setSubmitting(false);
+    },
+  });
+
+  useEffect(() => {
+    if (cities?.length > 0 && !values.city) {
+      setFieldValue('city', cities[0]);
     }
-  }
+  }, [cities, values.city, setFieldValue]);
 
   return (
     <main id="main-content" role="main">
@@ -88,7 +69,7 @@ export default function CreateRequest() {
             <label>
               Golongan Darah Pasien
               <select
-                value={formData.blood_type}
+                value={values.blood_type}
                 onChange={handleChange('blood_type')}
                 id="blood_type"
                 name="blood_type"
@@ -104,7 +85,7 @@ export default function CreateRequest() {
             <label>
               Kota / Wilayah Faskes
               <select
-                value={formData.city}
+                value={values.city}
                 onChange={handleChange('city')}
                 id="city"
                 name="city"
@@ -124,7 +105,7 @@ export default function CreateRequest() {
               type="text"
               id="hospital"
               name="hospital"
-              value={formData.hospital}
+              value={values.hospital}
               onChange={handleChange('hospital')}
               placeholder="Contoh: RS HKBP Balige, RSUD Tarutung"
               maxLength={120}
@@ -141,7 +122,7 @@ export default function CreateRequest() {
                 name="units"
                 min={1}
                 max={20}
-                value={formData.units}
+                value={values.units}
                 onChange={handleChange('units')}
                 required
               />
@@ -150,7 +131,7 @@ export default function CreateRequest() {
             <label>
               Tingkat Urgensi
               <select
-                value={formData.urgency}
+                value={values.urgency}
                 onChange={handleChange('urgency')}
                 id="urgency"
                 name="urgency"
@@ -162,7 +143,7 @@ export default function CreateRequest() {
             </label>
           </div>
 
-          {formData.urgency === 'terjadwal' && (
+          {values.urgency === 'terjadwal' && (
             <label>
               Tanggal Dibutuhkan
               <input
@@ -170,7 +151,7 @@ export default function CreateRequest() {
                 id="needed_date"
                 name="needed_date"
                 min={getTodayDateString()}
-                value={formData.needed_date}
+                value={values.needed_date}
                 onChange={handleChange('needed_date')}
                 required
               />
@@ -184,7 +165,7 @@ export default function CreateRequest() {
               id="contact_phone"
               name="contact_phone"
               inputMode="tel"
-              value={formData.contact_phone}
+              value={values.contact_phone}
               onChange={handleChange('contact_phone')}
               placeholder="Contoh: 081234567890"
               maxLength={20}

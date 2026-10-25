@@ -1,36 +1,23 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useForm } from '../hooks/index.js';
 import { validationSchemas } from '../utils/validation.js';
-import { getErrorMessage } from '../utils/errors.js';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState([]);
-  const [busy, setBusy] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const valErrs = validationSchemas.login({ email, password });
-    if (valErrs.length > 0) {
-      setErrors(valErrs);
-      return;
-    }
-
-    setErrors([]);
-    setBusy(true);
-    try {
-      await login(email.trim(), password);
+  const { values, errors, submitting, handleChange, handleSubmit } = useForm({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: validationSchemas.login,
+    onSubmit: async (formValues) => {
+      await login(formValues.email.trim(), formValues.password);
       navigate('/profil');
-    } catch (err) {
-      setErrors(err.details?.length ? err.details : [getErrorMessage(err)]);
-    } finally {
-      setBusy(false);
-    }
-  }
+    },
+  });
 
   return (
     <main id="main-content" role="main">
@@ -54,8 +41,8 @@ export default function Login() {
               name="username"
               type="text"
               autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={values.email}
+              onChange={handleChange('email')}
               placeholder="nama@email.com"
               required
             />
@@ -68,15 +55,15 @@ export default function Login() {
               name="password"
               type="password"
               autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={values.password}
+              onChange={handleChange('password')}
               placeholder="Masukkan kata sandi akun"
               required
             />
           </label>
 
-          <button id="btn-submit" className="go2" disabled={busy}>
-            {busy ? 'Memeriksa Kredensial...' : 'Masuk Sekarang'}
+          <button id="btn-submit" className="go2" disabled={submitting}>
+            {submitting ? 'Memeriksa Kredensial...' : 'Masuk Sekarang'}
           </button>
 
           <p className="auth-sub-link">

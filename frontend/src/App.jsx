@@ -1,12 +1,12 @@
 import { Component, Suspense, lazy, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
-import { useStats } from './hooks/index.js';
+import { DataProvider, useData } from './context/DataContext.jsx';
 import Nav from './components/Nav.jsx';
 import Home from './pages/Home.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
-// Lazy load routes dengan penamaan halaman konsisten dalam bahasa Inggris
+// Lazy load routes dengan penamaan halaman konsisten
 const Search = lazy(() => import('./pages/Search.jsx'));
 const Requests = lazy(() => import('./pages/Requests.jsx'));
 const Login = lazy(() => import('./pages/Login.jsx'));
@@ -41,126 +41,93 @@ class ErrorBoundary extends Component {
   }
 }
 
-export default function App() {
+function AppContent() {
   const { pathname } = useLocation();
-  const { stats, reload: reloadStats } = useStats();
+  const { urgentCount } = useData();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    reloadStats();
-  }, [pathname, reloadStats]);
-
-  const urgent = stats?.urgent_requests || 0;
+  }, [pathname]);
 
   return (
+    <ErrorBoundary>
+      <Nav urgent={urgentCount} />
+      <Suspense
+        fallback={
+          <main id="main-content" role="main" className="wrap pg min-h-60">
+            <h1 className="ph">Memuat...</h1>
+            <p className="nx">Menyiapkan halaman...</p>
+          </main>
+        }
+      >
+        <Routes>
+          {/* Halaman Publik Kanonikal */}
+          <Route path="/" element={<Home />} />
+          <Route path="/cari" element={<Search />} />
+          <Route path="/permintaan" element={<Requests />} />
+          <Route path="/buat" element={<CreateRequest />} />
+          <Route path="/daftar" element={<Register />} />
+          <Route path="/masuk" element={<Login />} />
+
+          {/* Halaman Terproteksi dengan Route Guard & Role-based Access Control */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profil"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pengaturan"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/riwayat"
+            element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback 404 Not Found */}
+          <Route
+            path="*"
+            element={
+              <main id="main-content" role="main" className="wrap pg">
+                <h1 className="ph">Halaman tidak ditemukan</h1>
+                <p className="sub">Alamat yang kamu buka tidak ada. Kembali ke beranda lewat menu di atas.</p>
+              </main>
+            }
+          />
+        </Routes>
+      </Suspense>
+      <footer>
+        <div className="wrap">SADA · Sahabat Aksi Donor Anda. “Sada” berarti “satu” dalam bahasa Batak Toba.</div>
+      </footer>
+    </ErrorBoundary>
+  );
+}
+
+export default function App() {
+  return (
     <AuthProvider>
-      <ErrorBoundary>
-        <Nav urgent={urgent} />
-        <Suspense
-          fallback={
-            <main id="main-content" role="main" className="wrap pg min-h-60">
-              <h1 className="ph">Memuat...</h1>
-              <p className="nx">Menyiapkan halaman...</p>
-            </main>
-          }
-        >
-          <Routes>
-            {/* Halaman Publik (Statis - Instan) */}
-            <Route path="/" element={<Home />} />
-            <Route path="/cari" element={<Search />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/permintaan" element={<Requests />} />
-            <Route path="/requests" element={<Requests />} />
-            <Route path="/buat" element={<CreateRequest />} />
-            <Route path="/create" element={<CreateRequest />} />
-            <Route path="/daftar" element={<Register />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/auth/register" element={<Register />} />
-            <Route path="/masuk" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth/login" element={<Login />} />
-
-            {/* Halaman Terproteksi dengan Route Guard Eksplisit & Role-based Access Control */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profil"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/setting"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/pengaturan"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/riwayat"
-              element={
-                <ProtectedRoute>
-                  <History />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/history"
-              element={
-                <ProtectedRoute>
-                  <History />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="*"
-              element={
-                <main id="main-content" role="main" className="wrap pg">
-                  <h1 className="ph">Halaman tidak ditemukan</h1>
-                  <p className="sub">Alamat yang kamu buka tidak ada. Kembali ke beranda lewat menu di atas.</p>
-                </main>
-              }
-            />
-          </Routes>
-        </Suspense>
-        <footer>
-          <div className="wrap">SADA · Sahabat Aksi Donor Anda. “Sada” berarti “satu” dalam bahasa Batak Toba.</div>
-        </footer>
-      </ErrorBoundary>
+      <DataProvider>
+        <AppContent />
+      </DataProvider>
     </AuthProvider>
   );
 }
