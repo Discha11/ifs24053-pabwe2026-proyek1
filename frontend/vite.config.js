@@ -16,6 +16,25 @@ export default defineConfig({
           next();
         });
       }
+    },
+    {
+      name: 'inline-css-plugin',
+      enforce: 'post',
+      generateBundle(options, bundle) {
+        let cssCode = '';
+        for (const [fileName, asset] of Object.entries(bundle)) {
+          if (fileName.endsWith('.css') && asset.type === 'asset') {
+            cssCode += asset.source;
+          }
+        }
+        const htmlAsset = bundle['index.html'];
+        if (htmlAsset && cssCode) {
+          htmlAsset.source = htmlAsset.source.replace(
+            /<link rel="stylesheet"[^>]*href="[^"]+\.css"[^>]*>/g,
+            `<style>${cssCode}</style>`
+          );
+        }
+      }
     }
   ],
   server: {
